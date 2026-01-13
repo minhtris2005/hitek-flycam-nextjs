@@ -1,26 +1,65 @@
+/* app/globals.css */
 @import "tailwindcss";
 
+/* Custom colors */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-primary: #d62323;
+  --color-secondary: #000000;
+  --color-greydark: #312e2d;
+  --color-greywhite: #f2f2f2;
+  --color-white: #ffffff;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  /* Core colors */
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  
+  /* Extended colors */
+  --color-greydark: var(--color-greydark);
+  --color-greywhite: var(--color-greywhite);
+  --color-white: var(--color-white);
+  
+  /* Text colors */
+  --text-color-primary: var(--color-primary);
+  --text-color-secondary: var(--color-secondary);
+  --text-color-greydark: var(--color-greydark);
+  
+  /* Background colors */
+  --bg-color-primary: var(--color-primary);
+  --bg-color-secondary: var(--color-secondary);
+  --bg-color-greydark: var(--color-greydark);
+  --bg-color-greywhite: var(--color-greywhite);
+  --bg-color-white: var(--color-white);
+  
+  /* Border colors */
+  --border-color-primary: var(--color-primary);
+  --border-color-secondary: var(--color-secondary);
+  --border-color-greydark: var(--color-greydark);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Thêm các class tiện ích */
+@layer utilities {
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-secondary { background-color: var(--color-secondary); }
+  .bg-greydark { background-color: var(--color-greydark); }
+  .bg-greywhite { background-color: var(--color-greywhite); }
+  .bg-white { background-color: var(--color-white); }
+  
+  .text-primary { color: var(--color-primary); }
+  .text-secondary { color: var(--color-secondary); }
+  .text-greydark { color: var(--color-greydark); }
+  .text-greywhite { color: var(--color-greywhite); }
+  
+  .border-primary { border-color: var(--color-primary); }
+  .border-secondary { border-color: var(--color-secondary); }
+  .border-greydark { border-color: var(--color-greydark); }
 }
 
+/* Base styles */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: #000000;
+  background-color: #ffffff;
+  margin: 0;
+  padding: 0;
 }

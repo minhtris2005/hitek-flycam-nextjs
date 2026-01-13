@@ -1,65 +1,196 @@
-import Image from "next/image";
+// app/page.tsx
+import { Metadata } from "next";
+import ServicesHero from "@/app/components/home/HeroSection";
+import IconServicesSection from "@/app/components/home/IconServicesSection";
+import InteractiveCardsSection from "@/app/components/home/InteractiveCardsSection";
+import FeaturedProjectsSection from "@/app/components/home/FeaturedProjectsSection";
+import NewsSection from "@/app/components/home/NewsSection";
+import TrustedClientsSection from "@/app/components/home/TrustedClientsSection";
+import DetailedServicesSection from "@/app/components/home/DetailedServicesSection";
+import IntroSection from "@/app/components/home/IntroSection";
 
-export default function Home() {
+export const metadata: Metadata = {
+  title: "Hitek Flycam - Dịch vụ Flycam Chuyên nghiệp Hàng đầu Việt Nam",
+  description: "Cung cấp giải pháp toàn diện về drone: Sửa chữa, khảo sát, quay phim, vận chuyển, đào tạo và dịch vụ giấy phép bay.",
+  keywords: "flycam, drone, sửa chữa drone, khảo sát drone, quay phim drone, giấy phép bay, dịch vụ drone",
+  authors: [{ name: "Hitek Flycam" }],
+  creator: "Hitek Flycam",
+  publisher: "Hitek Flycam",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "vi_VN",
+    url: "https://hitekflycam.com",
+    title: "Hitek Flycam - Dịch vụ Flycam Chuyên nghiệp",
+    description: "Giải pháp drone toàn diện từ sửa chữa, khảo sát đến quay phim chuyên nghiệp",
+    siteName: "Hitek Flycam",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Hitek Flycam - Dịch vụ Flycam",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Hitek Flycam - Dịch vụ Flycam Chuyên nghiệp",
+    description: "Giải pháp drone toàn diện cho mọi nhu cầu",
+    images: ["/twitter-image.jpg"],
+    creator: "@hitekflycam",
+  },
+  verification: {
+    google: "google-site-verification-code",
+    yandex: "yandex-verification-code",
+  },
+  alternates: {
+    canonical: "https://hitekflycam.com",
+    languages: {
+      "vi-VN": "https://hitekflycam.com/vi",
+      "en-US": "https://hitekflycam.com/en",
+    },
+  },
+  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
+  themeColor: "#d62323", // Đổi thành #d62323
+  category: "technology",
+};
+
+export default function HomePage() {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Hitek Flycam",
+    "image": "https://hitekflycam.com/logo.png",
+    "@id": "https://hitekflycam.com",
+    "url": "https://hitekflycam.com",
+    "telephone": "+84-28-9995-9588",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Số 123 Đường ABC",
+      "addressLocality": "Hà Nội",
+      "addressRegion": "VN",
+      "postalCode": "100000",
+      "addressCountry": "VN"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 21.028511,
+      "longitude": 105.804817
+    },
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "opens": "08:00",
+      "closes": "18:00"
+    },
+    "sameAs": [
+      "https://facebook.com/hitekflycam",
+      "https://twitter.com/hitekflycam",
+      "https://linkedin.com/company/hitekflycam"
+    ],
+    "priceRange": "$$",
+    "serviceType": ["Drone Repair", "Aerial Photography", "Drone Surveying", "Drone Training"],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Dịch vụ Flycam",
+      "itemListElement": [
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Sửa chữa Drone"
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Khảo sát Drone"
+          }
+        }
+      ]
+    }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="min-h-screen">
+      {/* Hero Section với hình ảnh chính - KHÔNG background */}
+      <section itemScope itemType="https://schema.org/Service">
+        <meta itemProp="name" content="Dịch vụ Flycam Hitek" />
+        <meta itemProp="description" content="Dịch vụ flycam chuyên nghiệp hàng đầu Việt Nam" />
+        <ServicesHero />
+      </section>
+
+      {/* Icon Services Section - GREYWHITE */}
+      <section aria-label="Các dịch vụ chính">
+        <IconServicesSection />
+      </section>
+
+      {/* Intro Section - Giới thiệu công ty - GREYWHITE */}
+      <section 
+        itemScope 
+        itemType="https://schema.org/Organization"
+        aria-label="Giới thiệu về chúng tôi"
+      >
+        <meta itemProp="name" content="Hitek Flycam" />
+        <meta itemProp="description" content="Công ty dịch vụ flycam chuyên nghiệp" />
+        <div itemProp="address" itemScope itemType="https://schema.org/PostalAddress" className="hidden">
+          <meta itemProp="addressLocality" content="Hà Nội" />
+          <meta itemProp="addressRegion" content="Việt Nam" />
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+        <IntroSection />
+      </section>
+
+      {/* Interactive Cards Section - WHITE */}
+      <section aria-label="Chi tiết dịch vụ">
+        <InteractiveCardsSection showTitle={true} />
+      </section>
+
+      {/* Detailed Services Section - WHITE */}
+      <section aria-label="Dịch vụ chi tiết">
+        <DetailedServicesSection />
+      </section>
+
+      {/* Featured Projects Section - GREYWHITE */}
+      <section aria-label="Dự án tiêu biểu">
+        <FeaturedProjectsSection />
+      </section>
+
+      {/* Trusted Clients Section - Đối tác - GREYWHITE */}
+      <section aria-label="Khách hàng tin cậy">
+        <TrustedClientsSection />
+      </section>
+
+      {/* News Section - Tin tức và bài viết - WHITE */}
+      <section aria-label="Tin tức và cập nhật">
+        <NewsSection />
+      </section>
+
+      {/* Structured Data cho SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(structuredData)
+        }}
+      />
+    </main>
   );
 }

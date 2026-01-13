@@ -1,0 +1,52 @@
+{
+  "lang": "en",
+  "home": {
+    "servicesPage": {
+      "servicesHero": {
+        "cta": {
+          "contact": "Contact Now"
+        }
+      }
+    },
+    "services": [
+      {"title": "Drone Repair", "description": "Drone repair"},
+      {"title": "Surveying Drone", "description": "Surveying drone"},
+      {"title": "Delivery Drone", "description": "Delivery drone"},
+      {"title": "Flight Permit", "description": "Flight permit"},
+      {"title": "Drone Import", "description": "Drone import"},
+      {"title": "Drone Filming", "description": "Drone filming"}
+    ],
+    "servicesCards": {
+      "sectionTitle": "Our Services",
+      "cta": {
+        "learnMore": "Learn More"
+      },
+      "cards": {
+        "repair": {
+          "name": "Drone Repair",
+          "detail": "Professional drone repair"
+        },
+        "surveying": {
+          "name": "Surveying Drone",
+          "detail": "Surveying with drones"
+        },
+        "delivery": {
+          "name": "Delivery Drone",
+          "detail": "Delivery with drones"
+        },
+        "flightPermit": {
+          "name": "Flight Permit",
+          "detail": "Flight permit services"
+        },
+        "droneImport": {
+          "name": "Drone Import",
+          "detail": "Drone import services"
+        },
+        "droneFilming": {
+          "name": "Drone Filming",
+          "detail": "Filming with drones"
+        }
+      }
+    }
+  }
+}

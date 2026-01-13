@@ -1,0 +1,269 @@
+{
+  "lang": "vi",
+  "nav": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "services": {
+      "title": "Dịch vụ",
+      "droneRepair": "Sửa chữa Drone",
+      "surveyingDrone": "Drone khảo sát",
+      "deliveryDrone": "Drone vận chuyển",
+      "flightPermit": "Giấy phép bay",
+      "droneImport": "Nhập khẩu Drone",
+      "droneFilming": "Quay phim Drone"
+    },
+    "document": "Tài liệu",
+    "blog": "Blog",
+    "contact": "Liên hệ"
+  },
+  "home": {
+    "services": [
+      {
+        "title": "Sửa chữa Flycam",
+        "description": "Sửa chữa tất cả các dòng flycam"
+      },
+      {
+        "title": "Flycam khảo sát",
+        "description": "Dịch vụ khảo sát bằng flycam"
+      },
+      {
+        "title": "Flycam giao hàng",
+        "description": "Vận chuyển hàng hóa bằng flycam"
+      },
+      {
+        "title": "Dịch vụ giấy phép bay",
+        "description": "Xin giấy phép bay UAV"
+      },
+      {
+        "title": "Nhập khẩu Flycam",
+        "description": "Nhập khẩu flycam chính hãng"
+      },
+      {
+        "title": "Quay phim Flycam",
+        "description": "Dịch vụ quay phim chuyên nghiệp"
+      }
+    ],
+    "servicesPage": {
+      "detailedServices": {
+        "title": "Dịch vụ ",
+        "highlight": "Chuyên nghiệp",
+        "question": " Của Chúng Tôi?",
+        "subtitle": "Chúng tôi cung cấp giải pháp toàn diện cho mọi nhu cầu về flycam",
+        "services": [
+          {
+            "title": "Công nghệ tiên tiến",
+            "description": "Ứng dụng công nghệ mới nhất trong lĩnh vực UAV"
+          },
+          {
+            "title": "Đội ngũ kỹ sư",
+            "description": "Kỹ sư giàu kinh nghiệm, được đào tạo bài bản"
+          },
+          {
+            "title": "Sửa chữa nhanh chóng",
+            "description": "Sửa chữa mọi lỗi với thời gian ngắn nhất"
+          },
+          {
+            "title": "Bảo mật tuyệt đối",
+            "description": "Đảm bảo an toàn thông tin và dữ liệu khách hàng"
+          },
+          {
+            "title": "Hỗ trợ 24/7",
+            "description": "Luôn sẵn sàng hỗ trợ khách hàng mọi lúc"
+          },
+          {
+            "title": "Ứng dụng di động",
+            "description": "Theo dõi và quản lý dịch vụ qua ứng dụng"
+          }
+        ],
+        "cta": {
+          "learnMore": "Tìm hiểu thêm"
+        }
+      },
+      "servicesIntro": {
+        "left": {
+          "title": "Dịch vụ Flycam",
+          "line1": "Chuyên nghiệp - Uy tín",
+          "line2": "Chất lượng - Hiệu quả",
+          "learnMore": "Xem thêm về chúng tôi"
+        },
+        "right": {
+          "part1": {
+            "brand": "Hitek Flycam",
+            "text1": "là thương hiệu uy tín thuộc",
+            "group": "Tập đoàn Hitek",
+            "text2": ", chuyên cung cấp các giải pháp",
+            "highlight": "drone toàn diện",
+            "text3": "cho mọi lĩnh vực"
+          },
+          "part2": "Với đội ngũ kỹ thuật viên giàu kinh nghiệm và trang thiết bị hiện đại, chúng tôi cam kết mang đến dịch vụ tốt nhất."
+        }
+      },
+      "servicesHero": {
+        "cta": {
+          "contact": "Liên hệ tư vấn"
+        }
+      }
+    },
+    "servicesCards": {
+      "sectionTitle": "Dịch vụ của chúng tôi",
+      "cards": {
+        "repair": {
+          "name": "Sửa chữa Flycam",
+          "detail": "Sửa chữa tất cả các dòng flycam với công nghệ tiên tiến"
+        },
+        "surveying": {
+          "name": "Flycam khảo sát",
+          "detail": "Dịch vụ khảo sát địa hình, công trình chuyên nghiệp"
+        },
+        "delivery": {
+          "name": "Flycam giao hàng",
+          "detail": "Vận chuyển hàng hóa nhanh chóng và an toàn"
+        },
+        "flightPermit": {
+          "name": "Dịch vụ giấy phép bay",
+          "detail": "Hỗ trợ xin giấy phép bay UAV đầy đủ pháp lý"
+        },
+        "droneImport": {
+          "name": "Nhập khẩu Flycam",
+          "detail": "Nhập khẩu flycam chính hãng với giá tốt nhất"
+        },
+        "droneFilming": {
+          "name": "Quay phim Flycam",
+          "detail": "Quay phim chuyên nghiệp với góc máy độc đáo"
+        }
+      },
+      "cta": {
+        "learnMore": "Tìm hiểu thêm"
+      }
+    },
+    "featuredProjects": {
+      "title": "Dự án ",
+      "highlight": "Tiêu biểu",
+      "subtitle": "Khám phá những dự án nổi bật chúng tôi đã thực hiện",
+      "viewAllProjects": "Xem tất cả dự án",
+      "projects": [
+        {
+          "title": "Khảo sát dự án xây dựng Vinhomes",
+          "category": "Khảo sát",
+          "description": "Sử dụng drone để khảo sát địa hình cho dự án quy mô lớn"
+        },
+        {
+          "title": "Quay phim quảng cáo du lịch",
+          "category": "Quay phim",
+          "description": "Sản xuất video quảng bá điểm đến du lịch"
+        },
+        {
+          "title": "Giám sát thi công cầu đường",
+          "category": "Giám sát",
+          "description": "Theo dõi tiến độ thi công công trình giao thông"
+        },
+        {
+          "title": "Vận chuyển thuốc y tế",
+          "category": "Vận chuyển",
+          "description": "Vận chuyển vật tư y tế đến vùng khó khăn"
+        },
+        {
+          "title": "Kiểm tra đường dây điện",
+          "category": "Kiểm tra",
+          "description": "Sử dụng drone để kiểm tra đường dây điện cao thế"
+        },
+        {
+          "title": "Lập bản đồ đô thị",
+          "category": "Lập bản đồ",
+          "description": "Tạo bản đồ 3D cho quy hoạch đô thị"
+        }
+      ],
+      "cta": {
+        "projectInquiry": "Có dự án cần tư vấn?",
+        "submitProject": "Gửi yêu cầu dự án"
+      }
+    },
+    "newsSection": {
+      "title": "Tin tức & ",
+      "highlight": "Cập nhật",
+      "subtitle": "Cập nhật những thông tin mới nhất về công nghệ drone",
+      "viewAllNews": "Xem tất cả tin tức",
+      "news": [
+        {
+          "title": "Xu hướng drone trong năm 2024",
+          "excerpt": "Những công nghệ drone mới sẽ thống trị thị trường",
+          "category": "Công nghệ"
+        },
+        {
+          "title": "Ứng dụng drone trong nông nghiệp",
+          "excerpt": "Cách drone đang cách mạng hóa ngành nông nghiệp",
+          "category": "Ứng dụng"
+        },
+        {
+          "title": "Quy định mới về bay drone",
+          "excerpt": "Những thay đổi quan trọng trong quy định bay UAV",
+          "category": "Pháp lý"
+        },
+        {
+          "title": "Drone cứu hộ cứu nạn",
+          "excerpt": "Ứng dụng drone trong công tác tìm kiếm cứu nạn",
+          "category": "An toàn"
+        },
+        {
+          "title": "Công nghệ pin drone mới",
+          "excerpt": "Đột phá về thời lượng pin cho thiết bị bay",
+          "category": "Công nghệ"
+        },
+        {
+          "title": "Drone trong xây dựng",
+          "excerpt": "Tối ưu hóa quy trình xây dựng với drone",
+          "category": "Xây dựng"
+        }
+      ]
+    },
+    "trustedClients": {
+      "title": "Đối tác ",
+      "highlight": "Tin cậy",
+      "subtitle": "Đồng hành cùng các doanh nghiệp hàng đầu"
+    }
+  },
+  "footer": {
+    "contact": {
+      "title": "Thông tin liên hệ",
+      "company": {
+        "name": "Công ty TNHH Hitek Flycam",
+        "hotline": "Hotline: 028 99 95 95 88",
+        "email": "Email: info@hitekflycam.com"
+      },
+      "ceo": {
+        "title": "Giám đốc Điều hành",
+        "hotline": "Hotline: 034 612 4230",
+        "email": "Email: ceo@hitekflycam.com"
+      },
+      "manager": {
+        "title": "Quản lý Dự án",
+        "hotline": "Hotline: 098 765 4321",
+        "email": "Email: manager@hitekflycam.com"
+      }
+    },
+    "services": {
+      "title": "Dịch vụ",
+      "items": {
+        "droneRepair": "Sửa chữa Drone",
+        "surveyingDrone": "Drone Khảo sát",
+        "deliveryDrone": "Drone Vận chuyển",
+        "flightPermit": "Giấy phép Bay",
+        "droneImport": "Nhập khẩu Drone",
+        "droneFilming": "Quay phim Drone"
+      }
+    },
+    "policy": {
+      "title": "Chính sách",
+      "items": {
+        "general": "Điều khoản chung",
+        "privacy": "Chính sách bảo mật",
+        "flightSafety": "Chính sách an toàn bay",
+        "flightPermit": "Điều khoản xin phép bay"
+      }
+    },
+    "connect": {
+      "title": "Kết nối với chúng tôi"
+    },
+    "copyright": "© 2024 Hitek Flycam. Tất cả các quyền được bảo lưu."
+  }
+}
