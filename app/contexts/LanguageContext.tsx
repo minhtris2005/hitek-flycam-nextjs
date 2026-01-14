@@ -5,27 +5,24 @@ import React, { createContext, useContext, useState, ReactNode, useLayoutEffect 
 
 // Import translation files
 import viTranslations from '@/app/locales/vi.json';
+import enTranslations from '@/app/locales/en.json';
 
 type Language = 'vi' | 'en';
 
-// Define recursive type for translations
-type TranslationValue = 
-  | string 
-  | number 
-  | boolean 
-  | { [key: string]: TranslationValue } 
-  | TranslationValue[];
+// Define specific types for translation data
+type JsonValue = string | number | boolean | null | { [key: string]: JsonValue } | JsonValue[];
+type TranslationData = { [key: string]: JsonValue };
 
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: <T = unknown>(key: string) => T;
+  t: (key: string) => JsonValue;
 }
 
-// For now, only Vietnamese translations
-const translations: Record<Language, TranslationValue> = {
-  vi: viTranslations as TranslationValue,
-  en: viTranslations as TranslationValue, // Temporarily use Vietnamese for English
+// Import both translations
+const translations: Record<Language, TranslationData> = {
+  vi: viTranslations as TranslationData,
+  en: enTranslations as TranslationData,
 };
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -51,6 +48,11 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
       if (savedLanguage && (savedLanguage === 'vi' || savedLanguage === 'en')) {
         return savedLanguage;
       }
+      // Try to detect browser language
+      const browserLang = navigator.language.split('-')[0];
+      if (browserLang === 'vi' || browserLang === 'en') {
+        return browserLang as Language;
+      }
     }
     return 'vi'; // default
   });
@@ -62,20 +64,32 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
     }
   }, [language]);
 
-  const t = <T = unknown>(key: string): T => {
+  const t = (key: string): JsonValue => {
     const keys = key.split('.');
-    let value: TranslationValue = translations[language];
+    let value: JsonValue = translations[language];
     
     for (const k of keys) {
-      if (value && typeof value === 'object' && !Array.isArray(value) && k in value) {
-        value = (value as { [key: string]: TranslationValue })[k];
+      if (value && typeof value === 'object' && value !== null && !Array.isArray(value) && k in value) {
+        value = (value as TranslationData)[k];
       } else {
-        console.warn(`Translation key not found: ${key}`);
-        return key as unknown as T;
+        console.warn(`Translation key not found: ${key} for language ${language}`);
+        // Fallback to Vietnamese if key not found
+        if (language === 'en') {
+          let viValue: JsonValue = translations.vi;
+          for (const k of keys) {
+            if (viValue && typeof viValue === 'object' && viValue !== null && !Array.isArray(viValue) && k in viValue) {
+              viValue = (viValue as TranslationData)[k];
+            } else {
+              return key; // Return key if not found in any language
+            }
+          }
+          return viValue;
+        }
+        return key; // Return key if not found
       }
     }
     
-    return value as T;
+    return value;
   };
 
   return (

@@ -12,7 +12,7 @@ const languages = [
 ];
 
 export default function LanguageSelector() {
-  const { language, setLanguage } = useLanguage(); // Xóa t vì không dùng
+  const { language, setLanguage } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -44,7 +44,9 @@ export default function LanguageSelector() {
         aria-expanded={isOpen}
       >
         <Globe className="w-4 h-4 text-gray-700" />
-        <span className="text-sm font-medium text-gray-700">{currentLanguage.flag} {currentLanguage.name}</span>
+        <span className="text-sm font-medium text-gray-700">
+          {currentLanguage.flag} {currentLanguage.name}
+        </span>
       </button>
 
       <AnimatePresence>

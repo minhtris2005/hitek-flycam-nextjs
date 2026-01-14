@@ -23,10 +23,25 @@ interface ServiceItem {
 
 export default function DetailedServicesSection() {
   const { t } = useLanguage();
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
 
-  const serviceItems = t<ServiceItem[]>("home.servicesPage.detailedServices.services");
+  // Helper function to safely get string
+  const getString = (value: unknown): string => {
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return value.toString();
+    if (typeof value === 'boolean') return value ? 'true' : 'false';
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
+  // Helper function to safely get array
+  const getArray = <T,>(value: unknown): T[] => {
+    if (Array.isArray(value)) return value as T[];
+    return [];
+  };
+
+  const serviceItems: ServiceItem[] = getArray(t("home.servicesPage.detailedServices.services"));
   
   const serviceIcons = [tech, engineer, fix, security, group, app];
 
@@ -70,14 +85,14 @@ export default function DetailedServicesSection() {
           className="text-center mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
-            {t<string>("home.servicesPage.detailedServices.title")}
+            {getString(t("home.servicesPage.detailedServices.title"))}
             <span className="text-primary ml-2">
-              {t<string>("home.servicesPage.detailedServices.highlight")}
+              {getString(t("home.servicesPage.detailedServices.highlight"))}
             </span>
-            {t<string>("home.servicesPage.detailedServices.question")}
+            {getString(t("home.servicesPage.detailedServices.question"))}
           </h2>
           <p className="text-lg text-muted-foreground mx-auto">
-            {t<string>("home.servicesPage.detailedServices.subtitle")}
+            {getString(t("home.servicesPage.detailedServices.subtitle"))}
           </p>
         </motion.div>
         
@@ -93,7 +108,7 @@ export default function DetailedServicesSection() {
               variants={itemVariants}
               className="relative group"
             >
-              <div className="bg-card rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-border h-full">
+              <div className="bg-card rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-300 h-full">
                 {/* Icon với hiệu ứng */}
                 <motion.div 
                   className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 bg-linear-to-br from-primary/10 to-primary/5"
@@ -113,18 +128,14 @@ export default function DetailedServicesSection() {
                 </motion.div>
                 
                 {/* Title */}
-                <motion.h3 
-                  className="text-2xl font-bold mb-4 text-foreground"
-                >
+                <h3 className="text-2xl font-bold mb-4 text-foreground">
                   {service.title}
-                </motion.h3>
+                </h3>
                 
                 {/* Description */}
-                <motion.p 
-                  className="text-muted-foreground mb-6 leading-relaxed"
-                >
+                <p className="text-muted-foreground mb-6 leading-relaxed">
                   {service.description}
-                </motion.p>
+                </p>
                 
                 {/* Decorative elements */}
                 <motion.div 
@@ -155,12 +166,12 @@ export default function DetailedServicesSection() {
             whileHover={{ scale: 1.05 }}
             className="inline-block"
           >
-            <Link href="/gioi-thieu">
+            <Link href="/about">
               <Button
                 size="lg"
                 className="bg-primary hover:bg-primary/90 text-white font-bold py-6 px-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                {t<string>("home.servicesPage.detailedServices.cta.learnMore")}
+                {getString(t("home.servicesPage.detailedServices.cta.learnMore"))}
               </Button>
             </Link>
           </motion.div>

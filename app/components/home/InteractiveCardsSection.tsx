@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 
 // Import images
@@ -17,55 +17,63 @@ const serviceRoutes = {
   repair: "/services/drone-repair",
   surveying: "/services/surveying-drone",
   delivery: "/services/delivery-drone",
-  flightPermit: "/services/flight-permit-service",
+  flightPermit: "/services/flight-permit",
   droneImport: "/services/drone-import",
   droneFilming: "/services/drone-filming",
 };
 
-const serviceCards = [
+interface ServiceCard {
+  key: keyof typeof serviceRoutes;
+  title: string;
+  image: StaticImageData;
+  namePath: string;
+  detailPath: string;
+}
+
+const serviceCards: ServiceCard[] = [
   { 
-    key: "repair" as const, 
+    key: "repair", 
     title: "01", 
     image: image1,
     namePath: "home.servicesCards.cards.repair.name",
     detailPath: "home.servicesCards.cards.repair.detail"
   },
   { 
-    key: "surveying" as const, 
+    key: "surveying", 
     title: "02", 
     image: image2,
     namePath: "home.servicesCards.cards.surveying.name",
     detailPath: "home.servicesCards.cards.surveying.detail"
   },
   { 
-    key: "delivery" as const, 
+    key: "delivery", 
     title: "03", 
     image: image3,
     namePath: "home.servicesCards.cards.delivery.name",
     detailPath: "home.servicesCards.cards.delivery.detail"
   },
   { 
-    key: "flightPermit" as const, 
+    key: "flightPermit", 
     title: "04", 
     image: image4,
     namePath: "home.servicesCards.cards.flightPermit.name",
     detailPath: "home.servicesCards.cards.flightPermit.detail"
   },
   {
-    key: "droneImport" as const,
+    key: "droneImport",
     title: "05",
     image: image5,
     namePath: "home.servicesCards.cards.droneImport.name",
     detailPath: "home.servicesCards.cards.droneImport.detail"
   },
   {
-    key: "droneFilming" as const,
+    key: "droneFilming",
     title: "06",
     image: image6,
     namePath: "home.servicesCards.cards.droneFilming.name",
     detailPath: "home.servicesCards.cards.droneFilming.detail"
   },
-] as const;
+];
 
 interface InteractiveCardsSectionProps {
   showTitle?: boolean;
@@ -74,14 +82,23 @@ interface InteractiveCardsSectionProps {
 export default function InteractiveCardsSection({ showTitle = true }: InteractiveCardsSectionProps) {
   const { t } = useLanguage();
 
+  // Helper function to safely get string
+  const getString = (value: unknown): string => {
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return value.toString();
+    if (typeof value === 'boolean') return value ? 'true' : 'false';
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
   return (
     <section className="py-16 bg-greywhite">
       <div className="container mx-auto px-4">
         {showTitle && (
           <h2 className="pb-3 text-3xl md:text-4xl lg:text-7xl font-bold text-center mb-12
-            text-vibrant-red drop-shadow-lg leading-[1.2]"
+            text-primary drop-shadow-lg leading-[1.2]"
           >
-            {t<string>("home.servicesCards.sectionTitle")}
+            {getString(t("home.servicesCards.sectionTitle"))}
           </h2>
         )}
 
@@ -96,10 +113,11 @@ export default function InteractiveCardsSection({ showTitle = true }: Interactiv
               <div className="absolute inset-0">
                 <Image
                   src={card.image}
-                  alt={t<string>(card.namePath)}
+                  alt={getString(t(card.namePath))}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-110"
                   sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 16vw"
+                  priority={card.key === "repair"}
                 />
               </div>
 
@@ -117,9 +135,9 @@ export default function InteractiveCardsSection({ showTitle = true }: Interactiv
                     {card.title}
                   </h3>
                   <p className="text-white text-2xl font-bold mb-4 line-clamp-2 h-16 flex items-center">
-                    {t<string>(card.namePath)}
+                    {getString(t(card.namePath))}
                   </p>
-                  <div className="w-10 h-10 border border-gray-300 rounded-sm flex items-center justify-center">
+                  <div className="w-10 h-10 border border-gray-300 rounded-xl flex items-center justify-center">
                     <svg
                       className="w-5 h-5 text-gray-300"
                       fill="none"
@@ -150,10 +168,10 @@ export default function InteractiveCardsSection({ showTitle = true }: Interactiv
                       {card.title}
                     </h3>
                     <p className="text-white text-2xl font-bold mb-2 line-clamp-2 h-14 flex items-center">
-                      {t<string>(card.namePath)}
+                      {getString(t(card.namePath))}
                     </p>
                     <p className="text-white text-sm mb-6 leading-relaxed">
-                      {t<string>(card.detailPath)}
+                      {getString(t(card.detailPath))}
                     </p>
                   </div>
 
@@ -162,15 +180,16 @@ export default function InteractiveCardsSection({ showTitle = true }: Interactiv
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button
-                      className="bg-white text-red-600 font-semibold
-                        py-3 px-6 rounded-lg w-full
+                      className="bg-white cursor-pointer text-[15px] text-red-600 font-semibold
+                        py-3 px-3 rounded-xl w-full
                         flex items-center justify-between
                         transition-all duration-300
-                        hover:bg-gray-100 hover:scale-105"
+                        hover:bg-gray-100 hover:scale-105 whitespace-nowrap"
                       type="button"
+                      aria-label={`Learn more about ${getString(t(card.namePath))}`}
                     >
-                      <span>{t<string>("home.servicesCards.cta.learnMore")}</span>
-                      <span className="transition-transform group-hover:translate-x-1">
+                      <span className="truncate">{getString(t("home.servicesCards.cta.learnMore"))}</span>
+                      <span className="transition-transform group-hover:translate-x-1 shrink-0 ml-2">
                         →
                       </span>
                     </button>

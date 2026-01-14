@@ -8,6 +8,16 @@ import { useLanguage } from "@/app/contexts/LanguageContext";
 
 export default function IntroSection() {
   const { t } = useLanguage();
+  
+  // Helper function to safely get string
+  const getString = (value: unknown): string => {
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return value.toString();
+    if (typeof value === 'boolean') return value ? 'true' : 'false';
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -34,26 +44,6 @@ export default function IntroSection() {
         damping: 25,
         stiffness: 100,
         duration: 0.7
-      }
-    }
-  };
-
-  const paragraphVariants: Variants = {
-    hidden: { 
-      opacity: 0, 
-      x: 30,
-      y: 10 
-    },
-    visible: {
-      opacity: 1,
-      x: 0,
-      y: 0,
-      transition: {
-        type: "spring",
-        damping: 25,
-        stiffness: 100,
-        duration: 0.7,
-        delay: 0.2
       }
     }
   };
@@ -122,6 +112,8 @@ export default function IntroSection() {
     }
   };
 
+  const aboutUrl = "/about";
+
   return (
     <motion.section 
       className="py-16 bg-background"
@@ -139,34 +131,27 @@ export default function IntroSection() {
           >
             {/* Animated vertical line */}
             <motion.div 
-              className="w-1 h-30 bg-primary mr-6 rounded-full"
+              className="w-1 h-48 bg-primary mr-6 rounded-full"
               variants={lineVariants}
             />
             
             <div>
-              <motion.h2 
-                className="text-[40px] leading-10 font-bold text-foreground mb-4"
-                variants={textVariants}
-              >
-                {t<string>("home.servicesPage.servicesIntro.left.title")}
-              </motion.h2>
+              <h2 className="text-[38px] leading-10 font-bold text-foreground mb-4">
+                {getString(t("home.servicesPage.servicesIntro.left.title"))}
+              </h2>
               
-              <motion.p 
-                className="text-lg text-foreground mb-4"
-                variants={textVariants}
-                transition={{ delay: 0.1 }}
-              >
-                {t<string>("home.servicesPage.servicesIntro.left.line1")}<br />
-                {t<string>("home.servicesPage.servicesIntro.left.line2")}
-              </motion.p>
+              <p className="text-lg text-foreground mb-4">
+                {getString(t("home.servicesPage.servicesIntro.left.line1"))}<br />
+                {getString(t("home.servicesPage.servicesIntro.left.line2"))}
+              </p>
               
-              <Link href="/gioi-thieu">
+              <Link href={aboutUrl}>
                 <motion.div 
                   className="flex items-center text-primary font-semibold cursor-pointer"
                   variants={linkVariants}
                   whileHover="hover"
                 >
-                  {t<string>("home.servicesPage.servicesIntro.left.learnMore")}
+                  {getString(t("home.servicesPage.servicesIntro.left.learnMore"))}
                   <motion.span
                     animate={{ x: [0, 3, 0] }}
                     transition={{
@@ -183,49 +168,39 @@ export default function IntroSection() {
           </motion.div>
 
           {/* Right Column */}
-          <motion.div 
-            className="space-y-4 text-foreground"
-            variants={paragraphVariants}
-          >
-            <motion.p 
-              variants={paragraphVariants}
-              className="leading-relaxed"
-            >
+          <div className="space-y-4 text-foreground">
+            <p className="leading-relaxed">
               <motion.span 
                 className="font-bold text-primary"
                 variants={highlightVariants}
                 animate="visible"
               >
-                {t<string>("home.servicesPage.servicesIntro.right.part1.brand")}{" "}
+                {getString(t("home.servicesPage.servicesIntro.right.part1.brand"))}{" "}
               </motion.span>
-              {t<string>("home.servicesPage.servicesIntro.right.part1.text1")}{" "}
+              {getString(t("home.servicesPage.servicesIntro.right.part1.text1"))}{" "}
               <motion.span 
                 className="font-bold text-primary"
                 variants={highlightVariants}
                 animate="visible"
                 style={{ animationDelay: "0.2s" }}
               >
-                {t<string>("home.servicesPage.servicesIntro.right.part1.group")}{" "}
+                {getString(t("home.servicesPage.servicesIntro.right.part1.group"))}{" "}
               </motion.span>
-              {t<string>("home.servicesPage.servicesIntro.right.part1.text2")}{" "}
+              {getString(t("home.servicesPage.servicesIntro.right.part1.text2"))}{" "}
               <motion.span 
                 className="font-bold text-primary"
                 variants={highlightVariants}
                 animate="visible"
                 style={{ animationDelay: "0.4s" }}
               >
-                {t<string>("home.servicesPage.servicesIntro.right.part1.highlight")}{" "}
+                {getString(t("home.servicesPage.servicesIntro.right.part1.highlight"))}{" "}
               </motion.span>
-              {t<string>("home.servicesPage.servicesIntro.right.part1.text3")}
-            </motion.p>
+              {getString(t("home.servicesPage.servicesIntro.right.part1.text3"))}
+            </p>
             
-            <motion.p 
-              variants={paragraphVariants}
-              transition={{ delay: 0.3 }}
-              className="leading-relaxed"
-            >
-              {t<string>("home.servicesPage.servicesIntro.right.part2")}
-            </motion.p>
+            <p className="leading-relaxed">
+              {getString(t("home.servicesPage.servicesIntro.right.part2"))}
+            </p>
 
             {/* Decorative floating elements */}
             <div className="relative">
@@ -249,7 +224,7 @@ export default function IntroSection() {
                 />
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
       </div>
     </motion.section>

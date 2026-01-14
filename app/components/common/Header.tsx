@@ -17,7 +17,7 @@ const services = [
   { name: "nav.services.droneRepair", path: "/services/drone-repair" },
   { name: "nav.services.surveyingDrone", path: "/services/surveying-drone" },
   { name: "nav.services.deliveryDrone", path: "/services/delivery-drone" },
-  { name: "nav.services.flightPermit", path: "/services/flight-permit-service" },
+  { name: "nav.services.flightPermit", path: "/services/flight-permit" },
   { name: "nav.services.droneImport", path: "/services/drone-import" },
   { name: "nav.services.droneFilming", path: "/services/drone-filming" },
 ];
@@ -31,6 +31,12 @@ export default function Header() {
 
   const servicesDropdownRef = useRef<HTMLDivElement>(null);
   const servicesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Helper function để lấy string từ translation
+  const getString = (key: string): string => {
+    const value = t(key);
+    return typeof value === 'string' ? value : String(value || key);
+  };
 
   // Hàm scroll lên đầu trang
   const scrollToTop = useCallback(() => {
@@ -76,11 +82,12 @@ export default function Header() {
 
   // ----- NAVIGATION LINKS -----
   const navLinks = [
-    { name: t<string>('nav.home'), href: "/", onClick: scrollToTop },
-    { name: t<string>('nav.about'), href: "/gioi-thieu", onClick: scrollToTop },
-    { name: t<string>('nav.services.title'), href: "/dich-vu", hasDropdown: true, onClick: scrollToTop },
-    { name: t<string>('nav.document'), href: "/tai-lieu", onClick: scrollToTop },
-    { name: t<string>('nav.blog'), href: "/blog", onClick: scrollToTop },
+    { name: getString('nav.home'), href: "/", onClick: scrollToTop },
+    { name: getString('nav.about'), href: "/about", onClick: scrollToTop }, // Đổi thành /about
+    { name: getString('nav.services.title'), href: "/services", hasDropdown: true, onClick: scrollToTop }, // Đổi thành /services
+    { name: getString('nav.document'), href: "/documents", onClick: scrollToTop }, // Đổi thành /documents
+    { name: getString('nav.blog'), href: "/blog", onClick: scrollToTop },
+    { name: getString('nav.contact'), href: "/contact", onClick: scrollToTop }, // Thêm contact nếu cần
   ];
 
   // ----- RENDER SERVICES DROPDOWN -----
@@ -100,7 +107,7 @@ export default function Header() {
           className="block px-4 py-3 text-gray-800 hover:text-red-600 hover:bg-gray-100 transition-colors"
           onClick={scrollToTop}
         >
-          {t<string>(service.name)}
+          {getString(service.name)}
         </Link>
       ))}
     </motion.div>
@@ -130,7 +137,7 @@ export default function Header() {
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <div 
-                key={link.name as string} 
+                key={link.name} 
                 className="relative"
                 onMouseEnter={link.hasDropdown ? handleMouseEnter : undefined}
                 onMouseLeave={link.hasDropdown ? handleMouseLeave : undefined}
@@ -202,7 +209,7 @@ export default function Header() {
             >
               <div className="py-4 space-y-1 border-t border-gray-200">
                 {navLinks.map((link) => (
-                  <div key={link.name as string}>
+                  <div key={link.name}>
                     {link.hasDropdown ? (
                       <div className="space-y-1">
                         <button
@@ -230,7 +237,7 @@ export default function Header() {
                                   setIsMobileServicesOpen(false);
                                 }}
                               >
-                                {t<string>(service.name)}
+                                {getString(service.name)}
                               </Link>
                             ))}
                           </motion.div>

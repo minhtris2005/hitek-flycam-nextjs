@@ -26,14 +26,32 @@ const projectImages = [photo1, photo2, photo3, photo4, photo1, photo2];
 
 export default function FeaturedProjectsSection() {
   const { t } = useLanguage();
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
 
-  // Xác định ngôn ngữ hiển thị
-  const displayLanguage = t("lang") === 'vi' ? 'vi' : 'en';
+  // Helper function to safely get string
+  const getString = (value: unknown): string => {
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return value.toString();
+    if (typeof value === 'boolean') return value ? 'true' : 'false';
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
+
+  // Helper function to safely get array
+  const getArray = <T,>(value: unknown): T[] => {
+    if (Array.isArray(value)) return value as T[];
+    return [];
+  };
+
+  // Helper function to get language
+  const getDisplayLanguage = (): string => {
+    const langValue = t("lang");
+    return getString(langValue) === 'vi' ? 'vi' : 'en';
+  };
 
   // Get projects data from translation
-  const projectsData = t<Project[]>("home.featuredProjects.projects");
+  const projectsData: Project[] = getArray(t("home.featuredProjects.projects"));
   
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -100,6 +118,9 @@ export default function FeaturedProjectsSection() {
     }
   };
 
+  const displayLanguage = getDisplayLanguage();
+  const contactUrl = "/contact"; // Đồng bộ với Header
+
   return (
     <section 
       ref={ref}
@@ -117,18 +138,18 @@ export default function FeaturedProjectsSection() {
               variants={titleVariants}
               className="text-4xl md:text-5xl font-bold text-foreground mb-4"
             >
-              {t<string>("home.featuredProjects.title")}{" "}
+              {getString(t("home.featuredProjects.title"))}{" "}
               <motion.span 
                 className="text-primary"
               >
-                {t<string>("home.featuredProjects.highlight")}
+                {getString(t("home.featuredProjects.highlight"))}
               </motion.span>
             </motion.h2>
             <motion.p 
               variants={titleVariants}
               className="text-muted-foreground text-lg max-w-2xl"
             >
-              {t<string>("home.featuredProjects.subtitle")}
+              {getString(t("home.featuredProjects.subtitle"))}
             </motion.p>
           </div>
           
@@ -139,9 +160,9 @@ export default function FeaturedProjectsSection() {
           >
             <Button 
               variant="outline" 
-              className="flex items-center gap-2 border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300"
+              className="flex items-center gap-2 border-2 border-primary text-primary transition-all duration-300"
             >
-              {t<string>("home.featuredProjects.viewAllProjects")}
+              {getString(t("home.featuredProjects.viewAllProjects"))}
               <motion.div
                 animate={{ x: [0, 5, 0] }}
                 transition={{ 
@@ -174,7 +195,7 @@ export default function FeaturedProjectsSection() {
               className="group relative overflow-hidden"
             >
               {/* Project Card */}
-              <div className="bg-card rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 h-full border border-border">
+              <div className="bg-card rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 h-full border border-gray-300">
                 {/* Image Container */}
                 <motion.div 
                   className="relative overflow-hidden h-56"
@@ -187,7 +208,7 @@ export default function FeaturedProjectsSection() {
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                   
-                  {/* Gradient Overlay */}
+                  {/* linear Overlay */}
                   <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
                   {/* Category Badge */}
@@ -214,16 +235,12 @@ export default function FeaturedProjectsSection() {
                 
                 {/* Content */}
                 <div className="p-6">
-                  <motion.h3
-                    className="text-lg font-bold text-foreground mb-3 line-clamp-2 min-h-14 group-hover:text-primary transition-colors duration-300"
-                  >
+                  <h3 className="text-lg font-bold text-foreground mb-3 line-clamp-2 min-h-14 group-hover:text-primary transition-colors duration-300">
                     {project.title}
-                  </motion.h3>
-                  <motion.p
-                    className="text-sm text-muted-foreground mb-4 line-clamp-2 min-h-10"
-                  >
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2 min-h-10">
                     {project.description}
-                  </motion.p>
+                  </p>
                   <motion.div
                     whileHover={{ scale: 1.05, x: 5 }}
                     whileTap={{ scale: 0.95 }}
@@ -276,20 +293,20 @@ export default function FeaturedProjectsSection() {
           className="mt-16 text-center"
         >
           <p className="text-muted-foreground mb-6 text-lg">
-            {t<string>("home.featuredProjects.cta.projectInquiry")}
+            {getString(t("home.featuredProjects.cta.projectInquiry"))}
           </p>
           <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="inline-block"
           >
-            <Link href="/lien-he">
+            <Link href={contactUrl}>
               <Button
                 size="lg"
                 className="bg-linear-to-r from-primary to-red-600 hover:from-red-600 hover:to-primary text-white font-bold py-6 px-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 group"
               >
                 <span className="flex items-center gap-3">
-                  {t<string>("home.featuredProjects.cta.submitProject")}
+                  {getString(t("home.featuredProjects.cta.submitProject"))}
                   <motion.div
                     animate={{ rotate: 360 }}
                     transition={{

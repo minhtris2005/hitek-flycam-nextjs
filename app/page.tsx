@@ -1,6 +1,6 @@
 // app/page.tsx
 import { Metadata } from "next";
-import ServicesHero from "@/app/components/home/HeroSection";
+import HeroSection from "@/app/components/home/HeroSection";
 import IconServicesSection from "@/app/components/home/IconServicesSection";
 import InteractiveCardsSection from "@/app/components/home/InteractiveCardsSection";
 import FeaturedProjectsSection from "@/app/components/home/FeaturedProjectsSection";
@@ -136,7 +136,7 @@ export default function HomePage() {
       <section itemScope itemType="https://schema.org/Service">
         <meta itemProp="name" content="Dịch vụ Flycam Hitek" />
         <meta itemProp="description" content="Dịch vụ flycam chuyên nghiệp hàng đầu Việt Nam" />
-        <ServicesHero />
+        <HeroSection />
       </section>
 
       {/* Icon Services Section - GREYWHITE */}

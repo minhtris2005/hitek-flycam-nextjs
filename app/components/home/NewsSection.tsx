@@ -4,7 +4,7 @@
 import { ArrowRight, Calendar, Clock } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { motion, useInView, type Variants } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 
@@ -19,11 +19,17 @@ interface NewsItem {
   category: string;
 }
 
+interface NewsMetadata {
+  id: number;
+  date: string;
+  readTime: string;
+}
+
 // Static images
 const newsImages = [photo1, photo2, photo3, photo3, photo2, photo1];
 
 // Static metadata
-const newsMetadata = [
+const newsMetadata: NewsMetadata[] = [
   { id: 1, date: "15/12/2024", readTime: "5" },
   { id: 2, date: "10/12/2024", readTime: "4" },
   { id: 3, date: "05/12/2024", readTime: "7" },
@@ -32,17 +38,98 @@ const newsMetadata = [
   { id: 6, date: "05/12/2024", readTime: "9" }
 ];
 
+// Type guard để kiểm tra NewsItem
+function isNewsItem(obj: unknown): obj is NewsItem {
+  if (typeof obj !== 'object' || obj === null) {
+    return false;
+  }
+  
+  const typedObj = obj as Record<string, unknown>;
+  return (
+    typeof typedObj.title === 'string' &&
+    typeof typedObj.excerpt === 'string' &&
+    typeof typedObj.category === 'string'
+  );
+}
+
+// Type guard để kiểm tra NewsItem[]
+function isNewsItemsArray(arr: unknown): arr is NewsItem[] {
+  if (!Array.isArray(arr)) {
+    return false;
+  }
+  
+  // Kiểm tra mỗi phần tử trong mảng
+  for (const item of arr) {
+    if (!isNewsItem(item)) {
+      return false;
+    }
+  }
+  
+  return true;
+}
+
+// Fallback data
+const fallbackNewsItems: NewsItem[] = [
+  { 
+    title: "Tập đoàn A mở rộng đầu tư tại Việt Nam", 
+    excerpt: "Chiến lược mở rộng thị trường với kế hoạch đầu tư 500 triệu USD trong 5 năm tới.", 
+    category: "Đầu tư" 
+  },
+  { 
+    title: "Công nghệ mới trong sản xuất công nghiệp", 
+    excerpt: "Ứng dụng AI và IoT nâng cao hiệu quả sản xuất lên 40%.", 
+    category: "Công nghệ" 
+  },
+  { 
+    title: "Hợp tác quốc tế về phát triển bền vững", 
+    excerpt: "Ký kết thỏa thuận hợp tác với các đối tác châu Âu.", 
+    category: "Hợp tác" 
+  },
+  { 
+    title: "Đào tạo nguồn nhân lực chất lượng cao", 
+    excerpt: "Chương trình đào tạo chuyên sâu cho 1000 kỹ sư và quản lý.", 
+    category: "Đào tạo" 
+  },
+  { 
+    title: "Báo cáo tài chính quý IV 2024", 
+    excerpt: "Tăng trưởng doanh thu ấn tượng với mức tăng 25% so với cùng kỳ.", 
+    category: "Tài chính" 
+  },
+  { 
+    title: "Giải thưởng doanh nghiệp xuất sắc 2024", 
+    excerpt: "Vinh dự nhận giải thưởng Doanh nghiệp xuất sắc khu vực Châu Á.", 
+    category: "Giải thưởng" 
+  }
+];
+
 export default function NewsSection() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
 
-  // Xác định ngôn ngữ hiển thị
-  const displayLanguage = t("lang") === 'vi' ? 'vi' : 'en';
+  // Lấy news items từ translation với xử lý kiểu an toàn
+  const newsItems = useMemo(() => {
+    const translationValue = t("home.newsSection.news");
+    
+    // Sử dụng unknown trước khi cast
+    const value = translationValue as unknown;
+    
+    // Kiểm tra và chuyển đổi kiểu
+    if (isNewsItemsArray(value)) {
+      return value;
+    }
+    
+    // Fallback nếu không đúng kiểu
+    console.warn("Translation data for news items is not in expected format, using fallback");
+    return fallbackNewsItems;
+  }, [t]);
 
-  // Get news items from translation
-  const newsItems = t<NewsItem[]>("home.newsSection.news");
-  
+  // Helper function để lấy string từ translation
+  const getString = (key: string): string => {
+    const value = t(key);
+    return typeof value === 'string' ? value : String(value || key);
+  };
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -125,9 +212,9 @@ export default function NewsSection() {
               variants={headerVariants}
               className="text-4xl md:text-5xl font-bold text-foreground mb-4"
             >
-              {t<string>("home.newsSection.title")}{" "}
+              {getString("home.newsSection.title")}{" "}
               <span className="text-transparent bg-clip-text bg-linear-to-r from-red-600 to-red-400">
-                {t<string>("home.newsSection.highlight")}
+                {getString("home.newsSection.highlight")}
               </span>
             </motion.h2>
             
@@ -135,7 +222,7 @@ export default function NewsSection() {
               variants={headerVariants}
               className="text-muted-foreground text-lg max-w-2xl"
             >
-              {t<string>("home.newsSection.subtitle")}
+              {getString("home.newsSection.subtitle")}
             </motion.p>
           </div>
           
@@ -146,9 +233,9 @@ export default function NewsSection() {
           >
             <Button 
               variant="outline" 
-              className="flex items-center gap-2 border-2 border-red-600 text-red-600 hover:bg-red-50 transition-all duration-300 group/btn"
+              className="flex items-center gap-2 border-2 border-red-600 text-red-600 transition-all duration-300 group/btn"
             >
-              {t<string>("home.newsSection.viewAllNews")}
+              {getString("home.newsSection.viewAllNews")}
               <motion.div
                 animate={{ x: [0, 5, 0] }}
                 transition={{ 
@@ -176,18 +263,18 @@ export default function NewsSection() {
               variants={itemVariants}
               whileHover={{ 
                 y: -8,
-                boxShadow: "0 20px 40px rgba(239, 68, 68, 0.15)"
+                boxShadow: "0 20px 40px rgba(239, 68, 68, 0.05)"
               }}
               className="group relative"
             >
               {/* News Card */}
-              <div className="bg-card rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 h-full border border-border group-hover:border-red-300">
+              <div className="bg-card rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300 h-full border border-gray-300 group-hover:border-red-300">
                 {/* Image Container */}
                 <motion.div 
                   className="relative overflow-hidden h-56"
                 >
                   <Image
-                    src={newsImages[index]}
+                    src={newsImages[index % newsImages.length]}
                     alt={item.title}
                     fill
                     className="object-cover"
@@ -214,7 +301,7 @@ export default function NewsSection() {
                     className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   >
                     <Button className="bg-white text-red-600 hover:bg-white/90 font-semibold px-6 py-3 rounded-full shadow-lg">
-                      {displayLanguage === 'vi' ? 'Đọc bài viết' : 'Read Article'}
+                      {language === 'vi' ? 'Đọc bài viết' : 'Read Article'}
                     </Button>
                   </motion.div>
                 </motion.div>
@@ -236,7 +323,7 @@ export default function NewsSection() {
                       whileHover={{ scale: 1.05 }}
                     >
                       <Clock className="w-4 h-4 text-red-500" />
-                      <span>{newsMetadata[index]?.readTime} {displayLanguage === 'vi' ? 'phút đọc' : 'min read'}</span>
+                      <span>{newsMetadata[index]?.readTime} {language === 'vi' ? 'phút đọc' : 'min read'}</span>
                     </motion.div>
                   </div>
                   
@@ -264,7 +351,7 @@ export default function NewsSection() {
                       className="p-0 h-auto text-red-600 hover:text-red-500 hover:bg-transparent group/btn"
                     >
                       <span className="flex items-center gap-2 font-semibold">
-                        {displayLanguage === 'vi' ? 'Đọc tiếp' : 'Read More'}
+                        {language === 'vi' ? 'Đọc tiếp' : 'Read More'}
                         <motion.span
                           className="inline-block"
                           animate={{ x: [0, 5, 0] }}
@@ -283,7 +370,7 @@ export default function NewsSection() {
               </div>
               {/* Background Glow */}
               <motion.div 
-                className="absolute inset-0 -z-10 rounded-2xl bg-linear-to-br from-red-600/10 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500"
+                className="absolute inset-0 -z-10 rounded-2xl bg-linear-to-br from-red-600/2 to-transparent opacity-0 group-hover:opacity-100 blur-xl transition-opacity duration-500"
               />
             </motion.article>
           ))}

@@ -56,13 +56,18 @@ export default function TrustedClientsSection() {
   const ref = useRef(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
-  const [isHovered, setIsHovered] = useState(false);
   const [totalWidth, setTotalWidth] = useState(0);
   const [scrollPosition, setScrollPosition] = useState(0);
   const [itemWidth, setItemWidth] = useState(0);
 
   // Tạo mảng gấp 3 lần để tạo hiệu ứng vô hạn mượt mà
   const infiniteClients = [...clients, ...clients, ...clients, ...clients];
+
+  // Helper function để lấy string từ translation
+  const getString = (key: string): string => {
+    const value = t(key);
+    return typeof value === 'string' ? value : String(value || key);
+  };
 
   // Tính toán chiều rộng
   useEffect(() => {
@@ -80,9 +85,9 @@ export default function TrustedClientsSection() {
     return () => window.removeEventListener('resize', updateWidth);
   }, [infiniteClients.length]);
 
-  // Animation loop vô hạn cải tiến
+  // Animation loop vô hạn - XÓA điều kiện isHovered
   useEffect(() => {
-    if (isHovered || itemWidth === 0) return;
+    if (itemWidth === 0) return;
 
     let animationFrameId: number;
     let lastTimestamp: number;
@@ -110,7 +115,7 @@ export default function TrustedClientsSection() {
 
     animationFrameId = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isHovered, itemWidth]);
+  }, [itemWidth]); // XÓA isHovered từ dependencies
 
   const itemVariants: Variants = {
     hidden: { 
@@ -158,15 +163,15 @@ export default function TrustedClientsSection() {
         <motion.div
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
-          className="text-center mb-12"
+          className="text-center mb-40"
         >
           <motion.h2 
             variants={titleVariants}
             className="text-3xl md:text-4xl font-bold text-foreground mb-3"
           >
-            {t<string>("home.trustedClients.title")}{" "}
+            {getString("home.trustedClients.title")}{" "}
             <span className="text-transparent bg-clip-text bg-linear-to-r from-primary to-red-600">
-              {t<string>("home.trustedClients.highlight")}
+              {getString("home.trustedClients.highlight")}
             </span>
           </motion.h2>
           
@@ -174,16 +179,12 @@ export default function TrustedClientsSection() {
             variants={titleVariants}
             className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto"
           >
-            {t<string>("home.trustedClients.subtitle")}
+            {getString("home.trustedClients.subtitle")}
           </motion.p>
         </motion.div>
 
         {/* Infinite Loop Carousel */}
-        <div 
-          className="relative h-50 md:h-65"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
+        <div className="relative h-50 md:h-65">
           <div 
             ref={containerRef}
             className="absolute bottom-20 left-0 right-0 h-full overflow-visible"

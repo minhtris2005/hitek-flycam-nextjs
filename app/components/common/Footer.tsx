@@ -39,27 +39,27 @@ export default function Footer() {
 
           {/* Contact Info */}
           <div>
-            <h3 className="font-bold text-lg mb-4">{t<string>("footer.contact.title")}</h3>
+            <h3 className="font-bold text-lg mb-4">{t("footer.contact.title") as string}</h3>
             <ul className="space-y-3">
               <li className="leading-tight">
                 <div className="text-white/70 text-sm">
-                  <div className="font-medium mb-1">{t<string>("footer.contact.company.name")}</div>
-                  <div className="text-white/60">{t<string>("footer.contact.company.hotline")}</div>
-                  <div className="text-white/60">{t<string>("footer.contact.company.email")}</div>
+                  <div className="font-medium mb-1">{t("footer.contact.company.name") as string}</div>
+                  <div className="text-white/60">{t("footer.contact.company.hotline") as string}</div>
+                  <div className="text-white/60">{t("footer.contact.company.email") as string}</div>
                 </div>
               </li>
               <li className="leading-tight">
                 <div className="text-white/70 text-sm">
-                  <div className="font-medium mb-1">{t<string>("footer.contact.ceo.title")}</div>
-                  <div className="text-white/60">{t<string>("footer.contact.ceo.hotline")}</div>
-                  <div className="text-white/60">{t<string>("footer.contact.ceo.email")}</div>
+                  <div className="font-medium mb-1">{t("footer.contact.ceo.title") as string}</div>
+                  <div className="text-white/60">{t("footer.contact.ceo.hotline") as string}</div>
+                  <div className="text-white/60">{t("footer.contact.ceo.email") as string}</div>
                 </div>
               </li>
               <li className="leading-tight">
                 <div className="text-white/70 text-sm">
-                  <div className="font-medium mb-1">{t<string>("footer.contact.manager.title")}</div>
-                  <div className="text-white/60">{t<string>("footer.contact.manager.hotline")}</div>
-                  <div className="text-white/60">{t<string>("footer.contact.manager.email")}</div>
+                  <div className="font-medium mb-1">{t("footer.contact.manager.title") as string}</div>
+                  <div className="text-white/60">{t("footer.contact.manager.hotline") as string}</div>
+                  <div className="text-white/60">{t("footer.contact.manager.email") as string}</div>
                 </div>
               </li>
             </ul>
@@ -67,36 +67,36 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="font-bold text-lg mb-4">{t<string>("footer.services.title")}</h3>
+            <h3 className="font-bold text-lg mb-4">{t("footer.services.title") as string}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/services/drone-repair" className="text-white/70 hover:text-red-500 transition-colors text-sm block py-1">
-                  {t<string>("footer.services.items.droneRepair")}
+                  {t("footer.services.items.droneRepair") as string}
                 </Link>
               </li>
               <li>
                 <Link href="/services/surveying-drone" className="text-white/70 hover:text-red-500 transition-colors text-sm block py-1">
-                  {t<string>("footer.services.items.surveyingDrone")}
+                  {t("footer.services.items.surveyingDrone") as string}
                 </Link>
               </li>
               <li>
                 <Link href="/services/delivery-drone" className="text-white/70 hover:text-red-500 transition-colors text-sm block py-1">
-                  {t<string>("footer.services.items.deliveryDrone")}
+                  {t("footer.services.items.deliveryDrone") as string}
                 </Link>
               </li>
               <li>
                 <Link href="/services/flight-permit-service" className="text-white/70 hover:text-red-500 transition-colors text-sm block py-1">
-                  {t<string>("footer.services.items.flightPermit")}
+                  {t("footer.services.items.flightPermit") as string}
                 </Link>
               </li>
               <li>
                 <Link href="/services/drone-import" className="text-white/70 hover:text-red-500 transition-colors text-sm block py-1">
-                  {t<string>("footer.services.items.droneImport")}
+                  {t("footer.services.items.droneImport") as string}
                 </Link>
               </li>
               <li>
                 <Link href="/services/drone-filming" className="text-white/70 hover:text-red-500 transition-colors text-sm block py-1">
-                  {t<string>("footer.services.items.droneFilming")}
+                  {t("footer.services.items.droneFilming") as string}
                 </Link>
               </li>
             </ul>
@@ -104,26 +104,26 @@ export default function Footer() {
 
           {/* Policy */}
           <div>
-            <h3 className="font-bold text-lg mb-4">{t<string>("footer.policy.title")}</h3>
+            <h3 className="font-bold text-lg mb-4">{t("footer.policy.title") as string}</h3>
             <ul className="space-y-2">
               <li>
                 <Link href="/dieu-khoan-chung" className="text-white/70 hover:text-red-500 transition-colors text-sm block py-1">
-                  {t<string>("footer.policy.items.general")}
+                  {t("footer.policy.items.general") as string}
                 </Link>
               </li>
               <li>
                 <Link href="/chinh-sach-bao-mat" className="text-white/70 hover:text-red-500 transition-colors text-sm block py-1">
-                  {t<string>("footer.policy.items.privacy")}
+                  {t("footer.policy.items.privacy") as string}
                 </Link>
               </li>
               <li>
                 <Link href="/chinh-sach-an-toan-bay" className="text-white/70 hover:text-red-500 transition-colors text-sm block py-1">
-                  {t<string>("footer.policy.items.flightSafety")}
+                  {t("footer.policy.items.flightSafety") as string}
                 </Link>
               </li>
               <li>
                 <Link href="/dieu-khoan-xin-phep-bay" className="text-white/70 hover:text-red-500 transition-colors text-sm block py-1">
-                  {t<string>("footer.policy.items.flightPermit")}
+                  {t("footer.policy.items.flightPermit") as string}
                 </Link>
               </li>
             </ul>
@@ -131,7 +131,7 @@ export default function Footer() {
           
           {/* Connect with us */}
           <div>
-            <h3 className="font-bold text-lg mb-4">{t<string>("footer.connect.title")}</h3>
+            <h3 className="font-bold text-lg mb-4">{t("footer.connect.title") as string}</h3>
             <div className="flex gap-3 mb-6">
               <a href="#" className="w-10 h-10 flex items-center justify-center hover:opacity-80 transition-opacity">
                 <div className="relative w-8 h-8">
@@ -194,7 +194,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 mt-8 pt-8 text-center text-sm text-white/50">
-          <p>© {currentYear} {t<string>("footer.copyright")}</p>
+          <p>© {currentYear} {t("footer.copyright") as string}</p>
         </div>
       </div>
     </footer>

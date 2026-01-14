@@ -14,22 +14,37 @@ import listence from '@/public/assets/services/icon1/listence.png';
 import buy from '@/public/assets/services/icon1/buy.png';
 import camera from '@/public/assets/services/icon1/camera.png';
 
+interface Service {
+  title: string;
+  description: string;
+}
+
 export default function IconServicesSection() {
   const { t } = useLanguage();
   const router = useRouter();
 
-  interface Service {
-    title: string;
-    description: string;
-  }
+  // Helper function to safely get string
+  const getString = (value: unknown): string => {
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number') return value.toString();
+    if (typeof value === 'boolean') return value ? 'true' : 'false';
+    if (value === null || value === undefined) return '';
+    return String(value);
+  };
 
-  const services = t<Service[]>("home.services");
+  // Helper function to safely get array
+  const getArray = <T,>(value: unknown): T[] => {
+    if (Array.isArray(value)) return value as T[];
+    return [];
+  };
+
+  const services: Service[] = getArray(t("home.services"));
 
   const iconServices = [
     { icon: repair, label: services[0]?.title || "", path: "/services/drone-repair" },
     { icon: map, label: services[1]?.title || "", path: "/services/surveying-drone" },
     { icon: delivery, label: services[2]?.title || "", path: "/services/delivery-drone" },
-    { icon: listence, label: services[3]?.title || "", path: "/services/flight-permit-service" },
+    { icon: listence, label: services[3]?.title || "", path: "/services/flight-permit" }, // Updated path
     { icon: buy, label: services[4]?.title || "", path: "/services/drone-import" },
     { icon: camera, label: services[5]?.title || "", path: "/services/drone-filming" },
   ];
@@ -82,13 +97,15 @@ export default function IconServicesSection() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {iconServices.map((service, index) => (
-            <motion.div
+            <motion.button
               key={index}
               variants={itemVariants}
-              className="group cursor-pointer"
+              className="group cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/50 rounded-lg"
               onClick={() => handleServiceClick(service.path)}
+              type="button"
+              aria-label={`Navigate to ${service.label} service`}
             >
-              <div className="flex flex-col items-center justify-center p-4 bg-card rounded-lg border border-border shadow-xs hover:shadow-md hover:border-primary/50 transition-all duration-200">
+              <div className="flex flex-col items-center justify-center p-4 bg-card rounded-lg border border-gray-200 shadow-xs hover:shadow-md hover:border-primary/50 transition-all duration-200 w-full h-full">
                 {/* Icon container with glow effect */}
                 <div className="relative mb-3">
                   {/* Glow effect background */}
@@ -151,10 +168,10 @@ export default function IconServicesSection() {
                   viewport={{ once: true }}
                   transition={{ delay: 0.3 + index * 0.04, duration: 0.3 }}
                 >
-                  {service.label}
+                  {getString(service.label)}
                 </motion.p>
               </div>
-            </motion.div>
+            </motion.button>
           ))}
         </div>
       </div>
