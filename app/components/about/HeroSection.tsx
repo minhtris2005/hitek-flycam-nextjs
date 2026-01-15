@@ -1,3 +1,4 @@
+// app/components/about/HeroSection.tsx
 "use client";
 
 import { motion } from "framer-motion";
@@ -24,26 +25,19 @@ export default function HeroSection() {
 
   return (
     <section className="relative h-[90vh] flex flex-col items-center justify-between overflow-hidden">
-      {/* Background Image - OPTIMIZED */}
-      <div className="absolute inset-0 bg-linear-to-br from-gray-900 to-black">
+      {/* Background Image - chất lượng từ file services */}
+      <div className="absolute inset-0">
         <Image
           src={BgAbout}
           alt="Hitek Flycam - Drone Technology Background"
           fill
           className="object-cover"
           priority
-          quality={85} // TỐI ƯU: 85-90 là tốt nhất
+          quality={85} // GIỮ chất lượng tốt
           sizes="100vw"
-          placeholder="blur"
-          // Thêm style CSS cụ thể
-          style={{ 
-            objectFit: 'cover',
-            objectPosition: 'center',
-            willChange: 'transform', // Tối ưu hiệu suất
-          }}
         />
         {/* Overlay */}
-        <div className="absolute inset-0 bg-black/30 bg-linear-to-t from-black/50 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-black/30" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10 flex-1 flex items-center justify-center pb-8 pt-20">
@@ -53,24 +47,17 @@ export default function HeroSection() {
           transition={{ duration: 1 }}
           className="max-w-6xl mx-auto text-center w-full"
         >
-          {/* Logo Container - OPTIMIZED */}
+          {/* Logo Container - GIỮ kích thước tốt */}
           <div className="relative w-full max-w-3xl h-64 md:h-80 lg:h-96 mx-auto mb-8">
-            <div className="relative w-full h-full bg-transparent">
+            <div className="relative w-full h-full">
               <Image
                 src={logo}
                 alt="Hitek Flycam Logo"
                 fill
                 className="object-contain"
                 priority
-                quality={85}
+                quality={85} // GIỮ chất lượng tốt
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 60vw"
-                placeholder="blur"
-                // Thêm style CSS cụ thể
-                style={{ 
-                  objectFit: 'contain',
-                  objectPosition: 'center',
-                  willChange: 'transform',
-                }}
               />
             </div>
           </div>

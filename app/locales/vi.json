@@ -478,7 +478,12 @@
             "answer": "Thiết bị đạt tiêu chuẩn IP54 trở lên – hoạt động trong gió cấp 4-5 hoặc mưa nhẹ, cần kiểm tra cụ thể mỗi dự án."
           }
         ]
-      }
+      },
+      "seo": {
+      "title": "Dịch vụ Drone Vận Chuyển | Hitek Flycam - Giải pháp giao hàng bằng drone chuyên nghiệp",
+      "description": "Cung cấp dịch vụ vận chuyển hàng hóa bằng drone cho khu công nghiệp, nông nghiệp và khu vực khó tiếp cận. Giải pháp tối ưu chi phí, thời gian và nhân lực.",
+      "keywords": "drone vận chuyển, drone delivery, giao hàng bằng drone, vận chuyển hàng hóa drone, giải pháp logistics drone, Hitek Flycam"
+    }
     },
     "droneFilming": {
       "hero": {
@@ -586,7 +591,12 @@
             "answer": "Hỗ trợ định dạng từ 4K đến 8K, ảnh độ phân giải cao, mã hóa chuẩn cho quảng cáo, truyền hình và mạng xã hội."
           }
         ]
-      }
+      },
+      "seo": {
+    "title": "Dịch vụ Quay Phim Drone | Hitek Flycam - Giải pháp quay phim bằng drone chuyên nghiệp",
+    "description": "Cung cấp dịch vụ quay phim bằng drone cho quảng cáo, sự kiện, bất động sản và sản xuất phim. Chất lượng hình ảnh 4K, góc quay độc đáo.",
+    "keywords": "quay phim drone, drone filming, aerial cinematography, quay phim từ trên cao, dịch vụ drone, Hitek Flycam"
+  }
     },
     "droneImport": {
       "hero": {
@@ -675,7 +685,12 @@
             "answer": "Chúng tôi hỗ trợ lắp đặt, hiệu chuẩn ban đầu và kiểm định thiết bị."
           }
         ]
-      }
+      },
+      "seo": {
+  "title": "Dịch vụ Nhập khẩu Drone | Hitek Flycam - Giải pháp nhập khẩu và phân phối drone chuyên nghiệp",
+  "description": "Dịch vụ nhập khẩu, tìm nguồn và phân phối drone chuyên nghiệp. Tiếp cận thị trường drone toàn cầu, hỗ trợ thông quan hải quan và giá bán buôn.",
+  "keywords": "nhập khẩu drone, import drone, tìm nguồn drone, bán buôn drone, phân phối drone, nhà cung cấp drone, thông quan drone, Hitek Flycam"
+}
     },
     "droneRepair": {
       "hero": {
@@ -779,7 +794,12 @@
             "answer": "Có, mọi dịch vụ sửa chữa đều đi kèm biên bản nghiệm thu và bảo hành kỹ thuật từ 30-90 ngày."
           }
         ]
-      }
+      },
+      "seo": {
+  "title": "Dịch vụ Sửa chữa Drone | Hitek Flycam - Giải pháp bảo trì và sửa chữa drone chuyên nghiệp",
+  "description": "Dịch vụ sửa chữa, bảo trì và khắc phục sự cố drone chuyên nghiệp. Kỹ thuật viên chuyên môn cao, phụ tùng chính hãng, thời gian sửa chữa nhanh chóng cho mọi dòng drone.",
+  "keywords": "sửa chữa drone, bảo trì drone, sửa flycam, khắc phục sự cố drone, thay thế linh kiện drone, trung tâm sửa chữa drone, Hitek Flycam"
+}
     },
     "flightPermitService": {
       "hero": {
@@ -868,7 +888,12 @@
             "answer": "Có thể, nhưng rất phức tạp và dễ bị từ chối. Hitek Flycam cung cấp trọn gói hồ sơ, bản đồ, và pháp lý giúp tỉ lệ phê duyệt đạt gần 100%."
           }
         ]
-      }
+      },
+      "seo": {
+  "title": "Dịch vụ Giấy phép Bay | Hitek Flycam - Dịch vụ cấp phép và ủy quyền drone chuyên nghiệp",
+  "description": "Dịch vụ giấy phép bay, cấp phép drone và ủy quyền hàng không chuyên nghiệp. Tuân thủ pháp luật, hỗ trợ hồ sơ và tư vấn quy định.",
+  "keywords": "giấy phép bay, cấp phép drone, giấy phép hàng không, chứng nhận drone, ủy quyền bay, quy định drone, tuân thủ FAA, Hitek Flycam"
+}
     },
     "surveyingDrone": {
       "hero": {
@@ -965,7 +990,12 @@
             "answer": "Có. Chúng tôi bàn giao dữ liệu tương thích với AutoCAD, Revit, Pix4D, Agisoft hoặc các hệ GIS khác."
           }
         ]
-      }
+      },
+      "seo": {
+  "title": "Dịch vụ Drone Khảo sát | Hitek Flycam - Dịch vụ lập bản đồ và khảo sát trên không chuyên nghiệp",
+  "description": "Dịch vụ khảo sát, lập bản đồ và kiểm tra bằng drone chuyên nghiệp. Thu thập dữ liệu chính xác cao, mô hình 3D và phân tích địa hình cho xây dựng và khảo sát đất đai.",
+  "keywords": "drone khảo sát, lập bản đồ drone, khảo sát trên không, kiểm tra bằng drone, lập bản đồ địa hình, GIS drone, khảo sát xây dựng, đo đạc đất đai, Hitek Flycam"
+}
     }
   },
   "contact": {

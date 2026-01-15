@@ -32,29 +32,42 @@ export default function Header() {
   const servicesDropdownRef = useRef<HTMLDivElement>(null);
   const servicesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Kiểm tra xem đang ở client-side hay không
+  const isClient = typeof window !== 'undefined';
+
   // Helper function để lấy string từ translation
   const getString = (key: string): string => {
+    if (!isClient) return ""; // Tránh render trên server
     const value = t(key);
     return typeof value === 'string' ? value : String(value || key);
   };
 
   // Hàm scroll lên đầu trang
   const scrollToTop = useCallback(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setIsMobileMenuOpen(false);
-    setIsServicesOpen(false);
-    setIsMobileServicesOpen(false);
-  }, []);
+    if (isClient) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      setIsMobileMenuOpen(false);
+      setIsServicesOpen(false);
+      setIsMobileServicesOpen(false);
+    }
+  }, [isClient]);
 
   // ----- SCROLL EFFECT -----
   useEffect(() => {
+    if (!isClient) return;
+    
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
+    // Set initial scroll state
+    handleScroll();
+    
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [isClient]);
 
   // ----- CLICK OUTSIDE DROPDOWN -----
   useEffect(() => {
+    if (!isClient) return;
+    
     const handleClickOutside = (event: MouseEvent) => {
       if (servicesDropdownRef.current && !servicesDropdownRef.current.contains(event.target as Node)) {
         setIsServicesOpen(false);
@@ -62,7 +75,7 @@ export default function Header() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isClient]);
 
   // ----- HOVER HANDLERS -----
   const handleMouseEnter = () => {
@@ -83,11 +96,11 @@ export default function Header() {
   // ----- NAVIGATION LINKS -----
   const navLinks = [
     { name: getString('nav.home'), href: "/", onClick: scrollToTop },
-    { name: getString('nav.about'), href: "/about", onClick: scrollToTop }, // Đổi thành /about
-    { name: getString('nav.services.title'), href: "/services", hasDropdown: true, onClick: scrollToTop }, // Đổi thành /services
-    { name: getString('nav.document'), href: "/documents", onClick: scrollToTop }, // Đổi thành /documents
+    { name: getString('nav.about'), href: "/about", onClick: scrollToTop },
+    { name: getString('nav.services.title'), href: "/services", hasDropdown: true, onClick: scrollToTop },
+    { name: getString('nav.document'), href: "/documents", onClick: scrollToTop },
     { name: getString('nav.blog'), href: "/blog", onClick: scrollToTop },
-    { name: getString('nav.contact'), href: "/contact", onClick: scrollToTop }, // Thêm contact nếu cần
+    { name: getString('nav.contact'), href: "/contact", onClick: scrollToTop },
   ];
 
   // ----- RENDER SERVICES DROPDOWN -----
@@ -112,6 +125,51 @@ export default function Header() {
       ))}
     </motion.div>
   );
+
+  // Render placeholder cho server-side
+  if (!isClient) {
+    return (
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-20">
+            {/* Logo */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3">
+                <div className="relative w-16 h-16 lg:w-18 lg:h-18">
+                  <Image
+                    src={logo_light}
+                    alt="Hitek Flycam Logo"
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 1024px) 64px, 72px"
+                    priority
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop Navigation Placeholder */}
+            <nav className="hidden lg:flex items-center gap-8">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
+              ))}
+            </nav>
+
+            {/* Controls Placeholder */}
+            <div className="flex items-center gap-4">
+              <div className="hidden lg:flex items-center gap-4">
+                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
+              </div>
+              <div className="flex lg:hidden items-center gap-3">
+                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
+                <div className="h-9 w-9 bg-gray-200 rounded animate-pulse" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md ${isScrolled ? "shadow-lg" : ""}`}>

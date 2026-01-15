@@ -478,7 +478,12 @@
             "answer": "Equipment meets IP54 standards or higher – operates in wind levels 4-5 or light rain, specific checks needed for each project."
           }
         ]
-      }
+      },
+      "seo": {
+      "title": "Drone Delivery Services | Hitek Flycam - Professional Drone Delivery Solutions",
+      "description": "Professional drone delivery services for industrial zones, agriculture, and hard-to-reach areas. Optimizing costs, time, and manpower with innovative drone logistics.",
+      "keywords": "drone delivery, aerial delivery, drone logistics, drone transportation, package delivery drone, commercial drone delivery, Hitek Flycam"
+    }
     },
     "droneFilming": {
       "hero": {
@@ -585,6 +590,11 @@
             "answer": "Support formats from 4K to 8K, high-resolution images, standard encoding for advertising, television, and social media."
           }
         ]
+      },
+      "seo": {
+        "title": "Drone Filming Services | Hitek Flycam - Professional Aerial Cinematography Solutions",
+        "description": "Professional drone filming services for advertising, events, real estate, and film production. 4K quality, unique camera angles, and creative aerial perspectives.",
+        "keywords": "drone filming, aerial cinematography, drone video production, aerial photography, drone services, aerial filming, Hitek Flycam"
       }
     },
     "droneImport": {
@@ -673,7 +683,12 @@
             "answer": "We provide installation support, initial calibration, and equipment inspection."
           }
         ]
-      }
+      },
+      "seo": {
+  "title": "Drone Import Services | Hitek Flycam - Professional Drone Sourcing and Distribution",
+  "description": "Professional drone import, sourcing, and distribution services. Access to global drone markets, customs clearance assistance, and wholesale pricing.",
+  "keywords": "drone import, import drone, drone sourcing, drone wholesale, drone distribution, drone supplier, customs clearance drone, Hitek Flycam"
+}
     },
     "droneRepair": {
       "hero": {
@@ -777,7 +792,12 @@
             "answer": "Yes, all repair services come with an acceptance report and technical warranty from 30-90 days."
           }
         ]
-      }
+      },
+      "seo": {
+  "title": "Drone Repair Services | Hitek Flycam - Professional Drone Maintenance and Fix Solutions",
+  "description": "Professional drone repair, maintenance, and troubleshooting services. Expert technicians, genuine parts, and fast turnaround time for all drone models.",
+  "keywords": "drone repair, drone maintenance, fix drone, drone troubleshooting, drone parts replacement, drone service center, Hitek Flycam"
+}
     },
     "flightPermitService": {
       "hero": {
@@ -866,7 +886,12 @@
             "answer": "Yes, but it's very complex and easily rejected. Hitek Flycam provides complete packages including documentation, maps, and legal support, achieving nearly 100% approval rate."
           }
         ]
-      }
+      },
+      "seo": {
+  "title": "Flight Permit Services | Hitek Flycam - Professional Drone Licensing and Authorization",
+  "description": "Professional flight permit, drone licensing, and aviation authorization services. Legal compliance, documentation assistance, and regulatory support.",
+  "keywords": "flight permit, drone license, aviation permit, drone certification, flight authorization, drone regulations, FAA compliance, Hitek Flycam"
+}
     },
     "surveyingDrone": {
       "hero": {
@@ -963,7 +988,12 @@
             "answer": "Yes. We deliver data compatible with AutoCAD, Revit, Pix4D, Agisoft, or other GIS systems."
           }
         ]
-      }
+      },
+      "seo": {
+  "title": "Surveying Drone Services | Hitek Flycam - Professional Aerial Mapping and Inspection",
+  "description": "Professional surveying, mapping, and inspection drone services. High-precision data collection, 3D modeling, and topographic analysis for construction and land surveying.",
+  "keywords": "surveying drone, drone mapping, aerial survey, drone inspection, topographic mapping, GIS drone, construction surveying, land survey, Hitek Flycam"
+}
     }
   },
   "contact": {
