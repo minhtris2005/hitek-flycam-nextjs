@@ -128,7 +128,7 @@ export default function DroneRepair() {
     height: "400px",
     titleSize: "text-6xl",
     subtitleSize: "text-[28px] leading-[32px]",
-    overlayOpacity: 0.5,
+    overlayOpacity: 0.4,
     alt: "Drone Repair Services - Professional Drone Maintenance and Fix",
   };
 

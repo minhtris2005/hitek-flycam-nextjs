@@ -25,10 +25,10 @@ export default function FeaturesSection({
   title,
   highlightedText,
   features,
-  backgroundColor = "bg-secondary",
+  backgroundColor = "bg-greywhite",
   cardBackground = "bg-card",
-  highlightColor = "text-vibrant-red",
-  titleSize = "text-xl",
+  highlightColor = "text-primary",
+  titleSize = "text-[22px]",
   descriptionSize = "text-base",
 }: FeaturesSectionProps) {
   const featureCount = features.length;
@@ -59,7 +59,7 @@ export default function FeaturesSection({
               key={index}
               className={`${cardBackground} rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300 hover:-translate-y-2 border border-border flex flex-col`}
             >
-              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 bg-secondary/10">
+              <div className="w-20 h-20 flex items-center justify-center mx-auto mb-6">
                 <Image
                   src={feature.icon}
                   alt={feature.title}
@@ -72,7 +72,7 @@ export default function FeaturesSection({
               <h3 className={`${titleSize} font-bold mb-4 text-foreground min-h-24 flex items-center justify-center line-clamp-3`}>
                 {feature.title}
               </h3>
-              <p className={`${descriptionSize} text-muted-foreground leading-relaxed line-clamp-4 flex-1 flex items-center justify-center`}>
+              <p className={`${descriptionSize}! text-muted-foreground leading-relaxed line-clamp-4 flex-1 flex items-center justify-center`}>
                 {feature.description}
               </p>
             </div>

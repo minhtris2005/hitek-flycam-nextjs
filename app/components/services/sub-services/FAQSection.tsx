@@ -53,7 +53,7 @@ export default function FAQSection({
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className={`bg-card rounded-xl border border-border/50 shadow-sm overflow-hidden transition-all duration-200 ${
+                className={`bg-card rounded-xl  shadow-sm overflow-hidden transition-all duration-200 ${
                   openFaq === index ? "ring-1 ring-primary/20" : ""
                 }`}
               >
@@ -109,7 +109,7 @@ export default function FAQSection({
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/contact">
                 <Button
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-md text-lg px-8 py-6"
+                  className="bg-primary hover:bg-primary/90 text-white shadow-md text-lg px-8 py-6 rounded-xl"
                 >
                   {getSafeTranslation(t, "faqSection.buttons.contact")}
                   <ChevronRight className="w-5 h-5 ml-2" />

@@ -128,7 +128,7 @@ export default function SurveyingDrone() {
     height: "400px",
     titleSize: "text-6xl",
     subtitleSize: "text-[25px] leading-[32px]",
-    overlayOpacity: 0.7,
+    overlayOpacity: 0.3,
     alt: "Surveying Drone Services - Professional Aerial Mapping and Inspection",
   };
 

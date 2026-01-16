@@ -128,7 +128,7 @@ export default function DroneFilming() {
     height: "400px",
     titleSize: "text-6xl",
     subtitleSize: "text-[25px]",
-    overlayOpacity: 0.7,
+    overlayOpacity: 0.6,
     alt: "Drone Filming Services - Professional Aerial Cinematography",
   };
 

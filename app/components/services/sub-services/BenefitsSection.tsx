@@ -49,7 +49,7 @@ export default function BenefitsSection({
   imageUrl,
   imageAlt = "Benefits illustration",
   imagePosition = 'left',
-  backgroundColor = "bg-secondary",
+  backgroundColor = "bg-greywhite",
   highlightColor = "text-primary",
   iconColor = "bg-primary",
   subtitle,
@@ -125,11 +125,6 @@ export default function BenefitsSection({
                     <div className="shrink-0">
                       <div className={`relative w-10 h-10 md:w-12 md:h-12 ${iconColor} rounded-xl flex items-center justify-center shadow-lg`}>
                         <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />
-
-                        {/* Step Number */}
-                        <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-background rounded-full border-2 border-primary flex items-center justify-center">
-                          <span className="text-[10px] font-bold text-primary">{index + 1}</span>
-                        </div>
                       </div>
                     </div>
 

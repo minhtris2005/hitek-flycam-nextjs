@@ -34,7 +34,7 @@ export default function HeroBanner({
   const containerHeight = height.includes('px') ? height : `${parseInt(height)}px`;
 
   return (
-    <div className="pt-20">
+   
       <div 
         ref={containerRef}
         className="relative overflow-hidden"
@@ -73,6 +73,5 @@ export default function HeroBanner({
           </div>
         </div>
       </div>
-    </div>
   );
 }

@@ -129,7 +129,7 @@ export default function FlightPermitService() {
     titleSize: "text-6xl",
     subtitleSize: "text-2xl",
     imageClassName: "w-full h-full object-cover object-[50%_60%]",
-    overlayOpacity: 0.7,
+    overlayOpacity: 0.6,
     alt: "Flight Permit Services - Professional Drone Licensing and Authorization",
   };
 

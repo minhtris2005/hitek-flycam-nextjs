@@ -75,7 +75,7 @@ export default function ProcessTimeline({
 
                     {/* Center: Step Number */}
                     <div className="absolute left-1/2 transform -translate-x-1/2">
-                      <div className={`w-16 h-16 bg-linear-to-br ${stepColor} rounded-xl flex items-center justify-center shadow-lg border-4 border-background z-10`}>
+                      <div className={`w-16 h-16 bg-linear-to-br ${stepColor} rounded-xl flex items-center justify-center shadow-lg border-4 border-white z-10`}>
                         <span className="text-white font-bold text-2xl">{process.step}</span>
                       </div>
                     </div>

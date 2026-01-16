@@ -9,11 +9,11 @@ import FAQSection from "@/app/components/services/sub-services/FAQSection";
 import { CheckCircle } from "lucide-react";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 
-import fix from "@/public/assets/services/delivery_drone/fix.png";
+import fix from "@/public/assets/services/importing_drone/bg.png";
 import icon1 from "@/public/assets/services/delivery_drone/icon1.png";
 import icon2 from "@/public/assets/services/delivery_drone/icon2.png";
 import icon3 from "@/public/assets/services/delivery_drone/icon3.png";
-import droneimport from "@/public/assets/services/delivery_drone/dronedelivery.avif";
+import droneimport from "@/public/assets/services/importing_drone/droneimport.png";
 
 // Define types cho JSON data
 interface FeatureItem {
@@ -128,7 +128,7 @@ export default function DroneImport() {
     height: "400px",
     titleSize: "text-6xl",
     subtitleSize: "text-2xl",
-    overlayOpacity: 0.7,
+    overlayOpacity: 0.6,
     alt: "Drone Import Services - Professional Drone Sourcing and Distribution",
   };
 

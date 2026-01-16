@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Phone, Menu, X, ChevronDown } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
-import LanguageSelector from "@/app/components/common/LanguageSelector";
+import LanguageSelector from "./LanguageSelector";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 
@@ -22,6 +22,26 @@ const services = [
   { name: "nav.services.droneFilming", path: "/services/drone-filming" },
 ];
 
+// Helper function để ép kiểu về string
+const getTranslation = (t: (key: string) => unknown, key: string): string => {
+  const value = t(key);
+  
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number') {
+    return value.toString();
+  }
+  if (typeof value === 'boolean') {
+    return value.toString();
+  }
+  if (value === null || value === undefined) {
+    return key;
+  }
+  
+  return JSON.stringify(value);
+};
+
 export default function Header() {
   const { t } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -32,42 +52,24 @@ export default function Header() {
   const servicesDropdownRef = useRef<HTMLDivElement>(null);
   const servicesTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Kiểm tra xem đang ở client-side hay không
-  const isClient = typeof window !== 'undefined';
-
-  // Helper function để lấy string từ translation
-  const getString = (key: string): string => {
-    if (!isClient) return ""; // Tránh render trên server
-    const value = t(key);
-    return typeof value === 'string' ? value : String(value || key);
-  };
-
   // Hàm scroll lên đầu trang
   const scrollToTop = useCallback(() => {
-    if (isClient) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      setIsMobileMenuOpen(false);
-      setIsServicesOpen(false);
-      setIsMobileServicesOpen(false);
-    }
-  }, [isClient]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsMobileMenuOpen(false);
+    setIsServicesOpen(false);
+    setIsMobileServicesOpen(false);
+  }, []);
 
-  // ----- SCROLL EFFECT -----
+  // Scroll effect - THÊM []
   useEffect(() => {
-    if (!isClient) return;
-    
     const handleScroll = () => setIsScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
-    // Set initial scroll state
     handleScroll();
-    
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isClient]);
+  }, []); // 👈 THÊM DẤU [] Ở ĐÂY
 
-  // ----- CLICK OUTSIDE DROPDOWN -----
+  // Click outside dropdown - THÊM []
   useEffect(() => {
-    if (!isClient) return;
-    
     const handleClickOutside = (event: MouseEvent) => {
       if (servicesDropdownRef.current && !servicesDropdownRef.current.contains(event.target as Node)) {
         setIsServicesOpen(false);
@@ -75,9 +77,9 @@ export default function Header() {
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isClient]);
+  }, []); // 👈 THÊM DẤU [] Ở ĐÂY
 
-  // ----- HOVER HANDLERS -----
+  // Hover handlers
   const handleMouseEnter = () => {
     if (servicesTimeoutRef.current) clearTimeout(servicesTimeoutRef.current);
     setIsServicesOpen(true);
@@ -87,115 +89,47 @@ export default function Header() {
     servicesTimeoutRef.current = setTimeout(() => setIsServicesOpen(false), 150);
   };
 
+  // Cleanup timeout - THÊM []
   useEffect(() => {
     return () => {
       if (servicesTimeoutRef.current) clearTimeout(servicesTimeoutRef.current);
     };
-  }, []);
+  }, []); // 👈 THÊM DẤU [] Ở ĐÂY
 
-  // ----- NAVIGATION LINKS -----
+  // Navigation links - ép kiểu về string
   const navLinks = [
-    { name: getString('nav.home'), href: "/", onClick: scrollToTop },
-    { name: getString('nav.about'), href: "/about", onClick: scrollToTop },
-    { name: getString('nav.services.title'), href: "/services", hasDropdown: true, onClick: scrollToTop },
-    { name: getString('nav.document'), href: "/documents", onClick: scrollToTop },
-    { name: getString('nav.blog'), href: "/blog", onClick: scrollToTop },
-    { name: getString('nav.contact'), href: "/contact", onClick: scrollToTop },
+    { name: getTranslation(t, 'nav.home'), href: "/" },
+    { name: getTranslation(t, 'nav.about'), href: "/about" },
+    { name: getTranslation(t, 'nav.services.title'), href: "/services", hasDropdown: true },
+    { name: getTranslation(t, 'nav.document'), href: "/documents" },
+    { name: getTranslation(t, 'nav.blog'), href: "/blog" },
+    { name: getTranslation(t, 'nav.contact'), href: "/contact" },
   ];
-
-  // ----- RENDER SERVICES DROPDOWN -----
-  const renderServicesDropdown = () => (
-    <motion.div 
-      className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-    >
-      {services.map((service) => (
-        <Link
-          key={service.path}
-          href={service.path}
-          className="block px-4 py-3 text-gray-800 hover:text-red-600 hover:bg-gray-100 transition-colors"
-          onClick={scrollToTop}
-        >
-          {getString(service.name)}
-        </Link>
-      ))}
-    </motion.div>
-  );
-
-  // Render placeholder cho server-side
-  if (!isClient) {
-    return (
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md shadow-sm">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-20">
-            {/* Logo */}
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-3">
-                <div className="relative w-16 h-16 lg:w-18 lg:h-18">
-                  <Image
-                    src={logo_light}
-                    alt="Hitek Flycam Logo"
-                    fill
-                    className="object-contain"
-                    sizes="(max-width: 1024px) 64px, 72px"
-                    priority
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Desktop Navigation Placeholder */}
-            <nav className="hidden lg:flex items-center gap-8">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-4 bg-gray-200 rounded w-16 animate-pulse" />
-              ))}
-            </nav>
-
-            {/* Controls Placeholder */}
-            <div className="flex items-center gap-4">
-              <div className="hidden lg:flex items-center gap-4">
-                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-              </div>
-              <div className="flex lg:hidden items-center gap-3">
-                <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-                <div className="h-9 w-9 bg-gray-200 rounded animate-pulse" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-    );
-  }
 
   return (
     <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-white/95 backdrop-blur-md ${isScrolled ? "shadow-lg" : ""}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <Link href="/" onClick={scrollToTop} className="flex items-center gap-3">
-              <div className="relative w-16 h-16 lg:w-18 lg:h-18">
-                <Image
-                  src={logo_light}
-                  alt="Hitek Flycam Logo"
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 1024px) 64px, 72px"
-                  priority
-                />
-              </div>
-            </Link>
-          </div>
+          <Link href="/" className="flex items-center gap-3" onClick={scrollToTop}>
+            <div className="relative w-16 h-16 lg:w-18 lg:h-18">
+              <Image
+                src={logo_light}
+                alt="Hitek Flycam Logo"
+                fill
+                className="object-contain"
+                sizes="(max-width: 1024px) 64px, 72px"
+                priority
+              />
+            </div>
+            <span className="text-xl font-bold text-gray-900">Hitek Flycam</span>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             {navLinks.map((link) => (
               <div 
-                key={link.name} 
+                key={link.href} 
                 className="relative"
                 onMouseEnter={link.hasDropdown ? handleMouseEnter : undefined}
                 onMouseLeave={link.hasDropdown ? handleMouseLeave : undefined}
@@ -206,20 +140,40 @@ export default function Header() {
                     <Link
                       href={link.href}
                       className="text-gray-800 hover:text-red-600 transition-colors font-medium"
-                      onClick={link.onClick}
+                      onClick={scrollToTop}
                     >
                       {link.name}
                     </Link>
                     <ChevronDown className={`h-4 w-4 ml-1 transition-transform ${isServicesOpen ? "rotate-180" : ""}`} />
                     <AnimatePresence>
-                      {isServicesOpen && renderServicesDropdown()}
+                      {isServicesOpen && (
+                        <motion.div 
+                          className="absolute top-full left-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden z-50"
+                          onMouseEnter={handleMouseEnter}
+                          onMouseLeave={handleMouseLeave}
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                        >
+                          {services.map((service) => (
+                            <Link
+                              key={service.path}
+                              href={service.path}
+                              className="block px-4 py-3 text-gray-800 hover:text-red-600 hover:bg-gray-100 transition-colors"
+                              onClick={scrollToTop}
+                            >
+                              {getTranslation(t, service.name)}
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
                     </AnimatePresence>
                   </div>
                 ) : (
                   <Link
                     href={link.href}
                     className="text-gray-800 hover:text-red-600 transition-colors font-medium"
-                    onClick={link.onClick}
+                    onClick={scrollToTop}
                   >
                     {link.name}
                   </Link>
@@ -245,11 +199,7 @@ export default function Header() {
                 className="text-gray-800 h-9 w-9"
                 aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
               >
-                {isMobileMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
+                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
             </div>
           </div>
@@ -267,7 +217,7 @@ export default function Header() {
             >
               <div className="py-4 space-y-1 border-t border-gray-200">
                 {navLinks.map((link) => (
-                  <div key={link.name}>
+                  <div key={link.href}>
                     {link.hasDropdown ? (
                       <div className="space-y-1">
                         <button
@@ -295,7 +245,7 @@ export default function Header() {
                                   setIsMobileServicesOpen(false);
                                 }}
                               >
-                                {getString(service.name)}
+                                {getTranslation(t, service.name)}
                               </Link>
                             ))}
                           </motion.div>
