@@ -122,7 +122,6 @@ export default function Header() {
                 priority
               />
             </div>
-            <span className="text-xl font-bold text-gray-900">Hitek Flycam</span>
           </Link>
 
           {/* Desktop Navigation */}

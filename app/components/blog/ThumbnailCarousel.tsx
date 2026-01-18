@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { ThumbnailCarouselProps, EnhancedBlogPost } from "@/types";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 
@@ -71,7 +72,7 @@ const ThumbnailCarousel: React.FC<ThumbnailCarouselProps> = ({
   };
 
   return (
-    <div className="thumbnail-section absolute bottom-8 right-8 z-20">
+    <div className="thumbnail-section absolute bottom-30 right-8 z-20">
       {/* Title with dynamic language */}
       <div className="text-white mb-4">
         <h3 className="text-xl font-bold">
@@ -94,6 +95,7 @@ const ThumbnailCarousel: React.FC<ThumbnailCarouselProps> = ({
           const title = getTitle(post);
           const category = getCategory(post.category);
           const imageSrc = getImageSrc(post);
+          const slug = post.slug_vi || post.slug_en || post.slug || post.id.toString();
           
           return (
             <article
@@ -126,21 +128,18 @@ const ThumbnailCarousel: React.FC<ThumbnailCarouselProps> = ({
                   <div className="des text-white/80 text-xs">
                     {category}
                   </div>
-                  {/* Read time (if available) */}
-                  {post.readTime && (
-                    <div className="text-white/60 text-[10px]">
-                      {post.readTime}{displayLanguage === 'vi' ? 'p' : 'm'}
-                    </div>
-                  )}
                 </div>
               </div>
 
-              {/* Hover overlay */}
-              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              {/* Hover overlay với Link */}
+              <Link 
+                href={`/blog/${slug}`}
+                className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center no-underline"
+              >
                 <span className="text-white text-sm font-medium">
                   {displayLanguage === 'vi' ? 'Đọc ngay' : 'Read now'} →
                 </span>
-              </div>
+              </Link>
             </article>
           );
         })}

@@ -7,56 +7,63 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 import BlogCarousel from "./BlogCarousel";
 import ThumbnailCarousel from "./ThumbnailCarousel";
-import BlogControls from "./BlogControls";
 import AllBlogsPage from "./AllBlogsPage";
 import { EnhancedBlogPost } from "@/types";
 
 // Helper functions
-const getFallbackImage = (index: number): string => {
+const getFallbackImage = (): string => {
   const fallbackImages = [
-    "/images/fallback/drone-tech.jpg",
-    "/images/fallback/flycam-news.jpg",
-    "/images/fallback/aerial-photography.jpg",
-    "/images/fallback/drone-review.jpg",
-    "/images/fallback/uav-technology.jpg",
-    "/images/fallback/aerial-videography.jpg"
+    'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1522031150111-0fdb8ce8d2e7?w=800&auto=format&fit=crop',
   ];
-  return fallbackImages[index % fallbackImages.length];
+  const randomIndex = Math.floor(Math.random() * fallbackImages.length);
+  return fallbackImages[randomIndex];
 };
 
 const getDefaultPosts = (): EnhancedBlogPost[] => {
-  return [
-    {
-      id: "1",
-      title: "Welcome to Hitek Flycam Blog",
-      title_vi: "Chào mừng đến với Blog Hitek Flycam",
-      title_en: "Welcome to Hitek Flycam Blog",
-      excerpt: "Discover the latest in drone technology and aerial photography",
-      excerpt_vi: "Khám phá những công nghệ drone và nhiếp ảnh trên không mới nhất",
-      excerpt_en: "Discover the latest in drone technology and aerial photography",
-      content: "Welcome to our blog about drone technology and aerial photography...",
-      content_vi: "Chào mừng đến với blog về công nghệ drone và nhiếp ảnh trên không...",
-      content_en: "Welcome to our blog about drone technology and aerial photography...",
-      image: "/images/default/drone-blog.jpg",
-      category: "Technology",
-      author: "Hitek Flycam Team",
-      status: "published",
-      created_at: new Date().toISOString(),
-      views: 0,
-      likes: 0,
-      comments: 0,
-      tags: ["drone", "technology", "blog"],
-      meta_title: "Welcome to Hitek Flycam Blog",
-      meta_description: "Discover the latest in drone technology and aerial photography",
-      readTime: "5 min",
-      slug: "welcome-to-hitek-flycam-blog",
-      date: new Date().toISOString(),
-      slug_vi: "chao-mung-den-voi-blog-hitek-flycam",
-      slug_en: "welcome-to-hitek-flycam-blog",
-      hasEnglish: true,
-      hasVietnamese: true,
-    }
+  const sampleImages = [
+    'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1522031150111-0fdb8ce8d2e7?w=800&auto=format&fit=crop',
   ];
+
+  return Array.from({ length: 6 }).map((_, idx) => ({
+    id: `${idx + 1}`,
+    title: `Bài viết mẫu ${idx + 1}`,
+    title_vi: `Bài viết mẫu ${idx + 1}`,
+    title_en: `Sample Post ${idx + 1}`,
+    excerpt: `Đây là mô tả mẫu cho bài viết ${idx + 1} về drone và flycam`,
+    excerpt_vi: `Đây là mô tả mẫu cho bài viết ${idx + 1} về drone và flycam`,
+    excerpt_en: `This is sample description for post ${idx + 1} about drones`,
+    content: `Nội dung mẫu cho bài viết ${idx + 1}...`,
+    content_vi: `Nội dung mẫu cho bài viết ${idx + 1}...`,
+    content_en: `Sample content for post ${idx + 1}...`,
+    image: sampleImages[idx],
+    category: idx % 3 === 0 ? 'Tin tức' : idx % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
+    author: 'Hitek Team',
+    status: 'published',
+    created_at: new Date().toISOString(),
+    views: Math.floor(Math.random() * 1000),
+    likes: Math.floor(Math.random() * 100),
+    comments: Math.floor(Math.random() * 50),
+    tags: ['drone', 'flycam', 'technology'],
+    meta_title: `Bài viết ${idx + 1}`,
+    meta_description: `Mô tả bài viết ${idx + 1}`,
+    readTime: `${Math.floor(Math.random() * 10) + 1} min`,
+    slug: `bai-viet-mau-${idx + 1}`,
+    date: new Date(Date.now() - idx * 86400000).toISOString(),
+    slug_vi: `bai-viet-mau-${idx + 1}`,
+    slug_en: `sample-post-${idx + 1}`,
+    hasEnglish: true,
+    hasVietnamese: true,
+  }));
 };
 
 // Helper to safely get translation value
@@ -68,6 +75,35 @@ const getSafeTranslation = (value: unknown, fallback: string = ""): string => {
 
 interface BlogClientProps {
   initialPosts?: EnhancedBlogPost[];
+}
+
+// Interface cho Supabase response
+interface SupabaseBlogPost {
+  id: string;
+  title: string;
+  title_vi?: string;
+  title_en?: string;
+  excerpt?: string;
+  excerpt_vi?: string;
+  excerpt_en?: string;
+  content?: string;
+  content_vi?: string;
+  content_en?: string;
+  image?: string;
+  category?: string;
+  author?: string;
+  status: string;
+  created_at: string;
+  views?: number;
+  likes?: number;
+  comments?: number;
+  tags?: string[];
+  meta_title?: string;
+  meta_description?: string;
+  readTime?: string;
+  slug?: string;
+  slug_vi?: string;
+  slug_en?: string;
 }
 
 export default function BlogClient({ initialPosts }: BlogClientProps) {
@@ -90,22 +126,80 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
   // Determine display language (only vi or en)
   const displayLanguage = getSafeTranslation(t("lang")) === 'vi' ? 'vi' : 'en';
 
-  // Fetch main blog data (first 6 posts)
   const fetchBlogPosts = useCallback(async () => {
     try {
-      // Replace with your actual fetch logic
-      // const response = await fetch('/api/blog-posts');
-      // const data = await response.json();
+      setLoading(true);
       
-      // For now, use default posts
-      setBlogPosts(getDefaultPosts());
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      
+      if (!supabaseUrl || !supabaseKey) {
+        console.error('Missing Supabase env variables');
+        setBlogPosts(getDefaultPosts());
+        return;
+      }
+
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/blog_posts?status=eq.published&order=created_at.desc&limit=6`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json() as SupabaseBlogPost[];
+        
+        if (data && data.length > 0) {
+          const enhancedPosts: EnhancedBlogPost[] = data.map((post) => ({
+            id: post.id,
+            title: post.title || '',
+            title_vi: post.title_vi,
+            title_en: post.title_en,
+            excerpt: post.excerpt || '',
+            excerpt_vi: post.excerpt_vi,
+            excerpt_en: post.excerpt_en,
+            content: post.content || '',
+            content_vi: post.content_vi,
+            content_en: post.content_en,
+            image: post.image,
+            category: post.category,
+            author: post.author,
+            status: post.status as 'published' | 'draft',
+            created_at: post.created_at,
+            views: post.views || 0,
+            likes: post.likes || 0,
+            comments: post.comments || 0,
+            tags: post.tags || [],
+            meta_title: post.meta_title,
+            meta_description: post.meta_description,
+            readTime: post.readTime || '5 min',
+            slug: post.slug || `post-${post.id}`,
+            date: post.created_at || new Date().toISOString(),
+            slug_vi: post.slug_vi,
+            slug_en: post.slug_en,
+            hasEnglish: !!post.title_en || !!post.content_en,
+            hasVietnamese: !!post.title_vi || !!post.content_vi,
+          }));
+          
+          setBlogPosts(enhancedPosts);
+        } else {
+          setBlogPosts(getDefaultPosts());
+        }
+      } else {
+        console.warn('Failed to fetch from Supabase, using default posts');
+        setBlogPosts(getDefaultPosts());
+      }
     } catch (error) {
       console.error("Error fetching blog posts:", error);
       setBlogPosts(getDefaultPosts());
     } finally {
       setLoading(false);
     }
-  }, []); // Removed displayLanguage dependency
+  }, []);
 
   useEffect(() => {
     if (!initialPosts) {
@@ -288,7 +382,6 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
     thumbnailContainerRef: thumbnailContainerRef as React.RefObject<HTMLDivElement>,
   };
 
-
   return (
     <div className="relative">
       {/* Main Blog Carousel section */}
@@ -296,9 +389,10 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
         ref={carouselRef}
         className="w-full h-screen overflow-hidden relative bg-black"
       >
-        <BlogCarousel {...blogCarouselProps}>
-          <BlogControls {...blogControlsProps} />
-        </BlogCarousel>
+        <BlogCarousel 
+          {...blogCarouselProps}
+          {...blogControlsProps}
+        />
 
         {thumbnailPosts.length > 0 && (
           <ThumbnailCarousel {...thumbnailCarouselProps} />

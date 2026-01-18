@@ -9,9 +9,9 @@ import Image from "next/image";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 
 // Import images
-import photo1 from "@/public/assets/home/news/photo-1.avif";
-import photo2 from "@/public/assets/home/news/photo-2.avif";
-import photo3 from "@/public/assets/home/news/photo-3.avif";
+import photo1 from "@/public/assets/home/news/photo-1.webp";
+import photo2 from "@/public/assets/home/news/photo-2.webp";
+import photo3 from "@/public/assets/home/news/photo-3.webp";
 
 interface NewsItem {
   title: string;

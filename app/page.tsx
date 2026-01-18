@@ -61,11 +61,14 @@ export const metadata: Metadata = {
       "en-US": "https://hitekflycam.com/en",
     },
   },
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
-  themeColor: "#d62323", // Đổi thành #d62323
   category: "technology",
 };
-
+export const viewport = {
+  themeColor: "#d62323",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
 export default function HomePage() {
   const structuredData = {
     "@context": "https://schema.org",

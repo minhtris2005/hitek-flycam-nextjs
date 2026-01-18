@@ -1,6 +1,6 @@
 // app/blog/all/page.tsx
 'use client';
-import Image from 'next/image'; // Thêm import này ở đầu file
+import Image from 'next/image';
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/app/contexts/LanguageContext';
@@ -8,7 +8,7 @@ import { Button } from '@/app/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/app/components/ui/card';
 import { Skeleton } from '@/app/components/ui/skeleton';
 
-// Helper functions đơn giản
+// Helper functions
 const calculateReadTime = (content: string): number => {
   const words = content?.trim().split(/\s+/).length || 0;
   return Math.ceil(words / 200);
@@ -61,6 +61,7 @@ interface EnhancedBlogPost extends BlogPost {
   displayTitle: string;
   displayExcerpt: string;
   displaySlug: string;
+  displayCategory: string;
 }
 
 export default function AllBlogsPage() {
@@ -74,20 +75,59 @@ export default function AllBlogsPage() {
   // Xác định ngôn ngữ hiển thị
   const displayLanguage = (t('lang')?.toString() === 'vi') ? 'vi' : 'en';
 
-  // Fetch blogs trực tiếp từ Supabase REST API
+  // Fetch blogs từ Supabase REST API
   const fetchAllBlogs = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Gọi Supabase REST API trực tiếp
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
       const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
       
       if (!supabaseUrl || !supabaseKey) {
         console.error('Missing Supabase env variables');
+        
+        // Create mock data inline
+        const mockImages = [
+          'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1522031150111-0fdb8ce8d2e7?w=800&auto=format&fit=crop',
+        ];
+
+        const mockData = Array.from({ length: 12 }).map((_, i) => ({
+          id: `${i + 100}`,
+          title: `Bài viết mẫu ${i + 1}`,
+          title_vi: `Bài viết mẫu ${i + 1}`,
+          title_en: `Sample Post ${i + 1}`,
+          displayTitle: displayLanguage === 'vi' ? `Bài viết mẫu ${i + 1}` : `Sample Post ${i + 1}`,
+          displayExcerpt: displayLanguage === 'vi' ? `Mô tả bài viết mẫu ${i + 1} về drone và công nghệ bay` : `Description for sample post ${i + 1} about drone technology`,
+          displaySlug: `bai-viet-mau-${i + 1}`,
+          displayCategory: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
+          excerpt: `Mô tả bài viết ${i + 1}`,
+          excerpt_vi: `Mô tả bài viết ${i + 1}`,
+          excerpt_en: `Description post ${i + 1}`,
+          content: `Nội dung chi tiết của bài viết ${i + 1}...`,
+          content_vi: `Nội dung chi tiết của bài viết ${i + 1}...`,
+          content_en: `Detailed content of post ${i + 1}...`,
+          image: mockImages[i % mockImages.length],
+          category: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
+          author: 'Hitek Team',
+          status: 'published',
+          created_at: new Date(Date.now() - i * 86400000).toISOString(),
+          slug: `bai-viet-mau-${i + 1}`,
+          slug_vi: `bai-viet-mau-${i + 1}`,
+          slug_en: `sample-post-${i + 1}`,
+          readTime: Math.ceil(Math.random() * 10) + 1,
+        }));
+        
+        setAllBlogs(mockData);
         return;
       }
 
+      console.log('Fetching from Supabase...');
+      
       const response = await fetch(
         `${supabaseUrl}/rest/v1/blog_posts?status=eq.published&order=created_at.desc`,
         {
@@ -99,43 +139,163 @@ export default function AllBlogsPage() {
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.ok) {
+        const data: BlogPost[] = await response.json();
+        
+        console.log('Data received from Supabase:', data.length, 'posts');
+        
+        if (data && data.length > 0) {
+          const enhancedPosts: EnhancedBlogPost[] = data.map((post) => {
+            // Lấy dữ liệu theo ngôn ngữ
+            const title = displayLanguage === 'vi' 
+              ? (post.title_vi || post.title_en || post.title || 'Bài viết không có tiêu đề')
+              : (post.title_en || post.title_vi || post.title || 'Untitled post');
+            
+            const excerpt = displayLanguage === 'vi'
+              ? (post.excerpt_vi || post.excerpt_en || post.excerpt || '')
+              : (post.excerpt_en || post.excerpt_vi || post.excerpt || '');
+            
+            const content = displayLanguage === 'vi'
+              ? (post.content_vi || post.content_en || post.content || '')
+              : (post.content_en || post.content_vi || post.content || '');
+            
+            const slug = displayLanguage === 'vi'
+              ? (post.slug_vi || post.slug_en || generateSlug(title))
+              : (post.slug_en || post.slug_vi || generateSlug(title));
+            
+            const category = post.category || (displayLanguage === 'vi' ? 'Tin tức' : 'News');
+
+            return {
+              ...post,
+              displayTitle: title,
+              displayExcerpt: excerpt,
+              displaySlug: slug,
+              displayCategory: category,
+              readTime: calculateReadTime(content),
+            };
+          });
+          
+          setAllBlogs(enhancedPosts);
+          console.log('Enhanced posts:', enhancedPosts.length);
+        } else {
+          console.log('No data from Supabase, using mock data');
+          // Create mock data inline
+          const mockImages = [
+            'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&auto=format&fit=crop',
+            'https://images.unsplash.com/photo-1522031150111-0fdb8ce8d2e7?w=800&auto=format&fit=crop',
+          ];
+
+          const mockData = Array.from({ length: 12 }).map((_, i) => ({
+            id: `${i + 100}`,
+            title: `Bài viết mẫu ${i + 1}`,
+            title_vi: `Bài viết mẫu ${i + 1}`,
+            title_en: `Sample Post ${i + 1}`,
+            displayTitle: displayLanguage === 'vi' ? `Bài viết mẫu ${i + 1}` : `Sample Post ${i + 1}`,
+            displayExcerpt: displayLanguage === 'vi' ? `Mô tả bài viết mẫu ${i + 1} về drone và công nghệ bay` : `Description for sample post ${i + 1} about drone technology`,
+            displaySlug: `bai-viet-mau-${i + 1}`,
+            displayCategory: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
+            excerpt: `Mô tả bài viết ${i + 1}`,
+            excerpt_vi: `Mô tả bài viết ${i + 1}`,
+            excerpt_en: `Description post ${i + 1}`,
+            content: `Nội dung chi tiết của bài viết ${i + 1}...`,
+            content_vi: `Nội dung chi tiết của bài viết ${i + 1}...`,
+            content_en: `Detailed content of post ${i + 1}...`,
+            image: mockImages[i % mockImages.length],
+            category: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
+            author: 'Hitek Team',
+            status: 'published',
+            created_at: new Date(Date.now() - i * 86400000).toISOString(),
+            slug: `bai-viet-mau-${i + 1}`,
+            slug_vi: `bai-viet-mau-${i + 1}`,
+            slug_en: `sample-post-${i + 1}`,
+            readTime: Math.ceil(Math.random() * 10) + 1,
+          }));
+          
+          setAllBlogs(mockData);
+        }
+      } else {
+        console.warn('Failed to fetch from Supabase, using mock data');
+        // Create mock data inline
+        const mockImages = [
+          'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&auto=format&fit=crop',
+          'https://images.unsplash.com/photo-1522031150111-0fdb8ce8d2e7?w=800&auto=format&fit=crop',
+        ];
+
+        const mockData = Array.from({ length: 12 }).map((_, i) => ({
+          id: `${i + 100}`,
+          title: `Bài viết mẫu ${i + 1}`,
+          title_vi: `Bài viết mẫu ${i + 1}`,
+          title_en: `Sample Post ${i + 1}`,
+          displayTitle: displayLanguage === 'vi' ? `Bài viết mẫu ${i + 1}` : `Sample Post ${i + 1}`,
+          displayExcerpt: displayLanguage === 'vi' ? `Mô tả bài viết mẫu ${i + 1} về drone và công nghệ bay` : `Description for sample post ${i + 1} about drone technology`,
+          displaySlug: `bai-viet-mau-${i + 1}`,
+          displayCategory: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
+          excerpt: `Mô tả bài viết ${i + 1}`,
+          excerpt_vi: `Mô tả bài viết ${i + 1}`,
+          excerpt_en: `Description post ${i + 1}`,
+          content: `Nội dung chi tiết của bài viết ${i + 1}...`,
+          content_vi: `Nội dung chi tiết của bài viết ${i + 1}...`,
+          content_en: `Detailed content of post ${i + 1}...`,
+          image: mockImages[i % mockImages.length],
+          category: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
+          author: 'Hitek Team',
+          status: 'published',
+          created_at: new Date(Date.now() - i * 86400000).toISOString(),
+          slug: `bai-viet-mau-${i + 1}`,
+          slug_vi: `bai-viet-mau-${i + 1}`,
+          slug_en: `sample-post-${i + 1}`,
+          readTime: Math.ceil(Math.random() * 10) + 1,
+        }));
+        
+        setAllBlogs(mockData);
       }
+    } catch {
+      console.error('Error fetching blogs');
+      // Create mock data inline
+      const mockImages = [
+        'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&auto=format&fit=crop',
+        'https://images.unsplash.com/photo-1522031150111-0fdb8ce8d2e7?w=800&auto=format&fit=crop',
+      ];
 
-      const data: BlogPost[] = await response.json();
+      const mockData = Array.from({ length: 12 }).map((_, i) => ({
+        id: `${i + 100}`,
+        title: `Bài viết mẫu ${i + 1}`,
+        title_vi: `Bài viết mẫu ${i + 1}`,
+        title_en: `Sample Post ${i + 1}`,
+        displayTitle: displayLanguage === 'vi' ? `Bài viết mẫu ${i + 1}` : `Sample Post ${i + 1}`,
+        displayExcerpt: displayLanguage === 'vi' ? `Mô tả bài viết mẫu ${i + 1} về drone và công nghệ bay` : `Description for sample post ${i + 1} about drone technology`,
+        displaySlug: `bai-viet-mau-${i + 1}`,
+        displayCategory: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
+        excerpt: `Mô tả bài viết ${i + 1}`,
+        excerpt_vi: `Mô tả bài viết ${i + 1}`,
+        excerpt_en: `Description post ${i + 1}`,
+        content: `Nội dung chi tiết của bài viết ${i + 1}...`,
+        content_vi: `Nội dung chi tiết của bài viết ${i + 1}...`,
+        content_en: `Detailed content of post ${i + 1}...`,
+        image: mockImages[i % mockImages.length],
+        category: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
+        author: 'Hitek Team',
+        status: 'published',
+        created_at: new Date(Date.now() - i * 86400000).toISOString(),
+        slug: `bai-viet-mau-${i + 1}`,
+        slug_vi: `bai-viet-mau-${i + 1}`,
+        slug_en: `sample-post-${i + 1}`,
+        readTime: Math.ceil(Math.random() * 10) + 1,
+      }));
       
-      // Transform data
-      const enhancedPosts: EnhancedBlogPost[] = data.map((post) => {
-        // Lấy dữ liệu theo ngôn ngữ
-        const title = displayLanguage === 'vi' 
-          ? (post.title_vi || post.title_en || post.title || '')
-          : (post.title_en || post.title_vi || post.title || '');
-        
-        const excerpt = displayLanguage === 'vi'
-          ? (post.excerpt_vi || post.excerpt_en || post.excerpt || '')
-          : (post.excerpt_en || post.excerpt_vi || post.excerpt || '');
-        
-        const content = displayLanguage === 'vi'
-          ? (post.content_vi || post.content_en || post.content || '')
-          : (post.content_en || post.content_vi || post.content || '');
-        
-        const slug = displayLanguage === 'vi'
-          ? (post.slug_vi || post.slug_en || generateSlug(title))
-          : (post.slug_en || post.slug_vi || generateSlug(title));
-
-        return {
-          ...post,
-          displayTitle: title,
-          displayExcerpt: excerpt,
-          displaySlug: slug,
-          readTime: calculateReadTime(content),
-        };
-      });
-      
-      setAllBlogs(enhancedPosts);
-    } catch (error) {
-      console.error('Error fetching blogs:', error);
+      setAllBlogs(mockData);
     } finally {
       setLoading(false);
     }
@@ -148,12 +308,16 @@ export default function AllBlogsPage() {
   // Format date
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
-    const date = new Date(dateString);
-    return date.toLocaleDateString(displayLanguage === 'vi' ? 'vi-VN' : 'en-US', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric'
-    });
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString(displayLanguage === 'vi' ? 'vi-VN' : 'en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch {
+      return '';
+    }
   };
 
   // Xử lý view details
@@ -168,27 +332,36 @@ export default function AllBlogsPage() {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // Loading skeleton
   if (loading) {
     return (
-      <div className="min-h-screen py-12">
+      <div className="min-h-screen py-12 bg-linear-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
-          <Skeleton className="h-12 w-64 mb-8" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="mb-12">
+            <Skeleton className="h-12 w-64 mb-4" />
+            <Skeleton className="w-32 h-1" />
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, index) => (
-              <Card key={index} className="h-125">
+              <Card key={index} className="h-full border border-gray-300 shadow-sm hover:shadow-md transition-shadow">
                 <Skeleton className="h-48 w-full rounded-t-lg" />
                 <CardContent className="p-6">
-                  <Skeleton className="h-6 w-24 mb-4" />
-                  <Skeleton className="h-8 w-full mb-3" />
+                  <Skeleton className="h-6 w-32 mb-4 bg-primary" />
+                  <Skeleton className="h-7 w-full mb-3" />
                   <Skeleton className="h-4 w-full mb-2" />
                   <Skeleton className="h-4 w-full mb-2" />
-                  <Skeleton className="h-4 w-2/3 mb-4" />
-                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-4 w-2/3 mb-6" />
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
                 </CardContent>
+                <CardFooter className="px-6 pb-6 pt-0">
+                  <Skeleton className="h-10 w-full" />
+                </CardFooter>
               </Card>
             ))}
           </div>
@@ -197,123 +370,154 @@ export default function AllBlogsPage() {
     );
   }
 
+  console.log('All blogs count:', allBlogs.length);
+  console.log('Current blogs:', currentBlogs.length);
+
   return (
-    <div className="min-h-screen py-12">
+    <div className="min-h-screen py-12 bg-linear-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">
+        <div className="mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4 text-gray-800">
             {displayLanguage === 'vi' ? 'Tất cả bài viết' : 'All Blog Posts'}
           </h1>
-          <div className="w-20 h-1 bg-red-600"></div>
+          <div className="w-24 h-1 bg-red-600 rounded-full"></div>
+          
         </div>
 
         {/* Empty state */}
         {allBlogs.length === 0 ? (
           <div className="text-center py-20">
-            <div className="text-5xl mb-4">📝</div>
-            <p className="text-gray-600 text-lg mb-4">
-              {displayLanguage === 'vi' ? 'Chưa có bài viết nào được đăng.' : 'No blog posts published yet.'}
+            <div className="text-5xl mb-6">📝</div>
+            <h3 className="text-2xl font-semibold mb-4 text-gray-700">
+              {displayLanguage === 'vi' ? 'Chưa có bài viết nào' : 'No blog posts yet'}
+            </h3>
+            <p className="text-gray-600 text-lg mb-8 max-w-md mx-auto">
+              {displayLanguage === 'vi' 
+                ? 'Hiện chưa có bài viết nào được đăng tải. Vui lòng quay lại sau.'
+                : 'No blog posts have been published yet. Please check back later.'}
             </p>
-            <Button onClick={fetchAllBlogs}>
-              {displayLanguage === 'vi' ? 'Thử lại' : 'Retry'}
+            <Button 
+              onClick={fetchAllBlogs}
+              className="bg-primary hover:bg-primary/90"
+            >
+              {displayLanguage === 'vi' ? 'Tải lại' : 'Refresh'}
             </Button>
           </div>
         ) : (
           <>
             {/* Blog grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {currentBlogs.map((blog, index) => (
                 <Card 
                   key={blog.id} 
-                  className="h-full cursor-pointer hover:shadow-lg transition-shadow"
+                  className="h-full flex flex-col border border-gray-300 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden"
                   onClick={() => handleViewDetails(blog)}
                 >
                   {/* Image */}
-                  <div className="h-48 overflow-hidden">
+                  <div className="h-48 overflow-hidden relative">
                     <Image
                       src={blog.image || getFallbackImage(startIndex + index)}
                       alt={blog.displayTitle}
                       fill
                       className="object-cover hover:scale-105 transition-transform duration-500"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      priority={index < 3}
                     />
+                    {/* linear overlay */}
+                    <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
                   </div>
 
-                  <CardContent className="p-6">
-                    {/* Category */}
-                    <div className="mb-3">
-                      <span className="inline-block bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full">
-                        {blog.category || (displayLanguage === 'vi' ? 'Tin tức' : 'News')}
-                      </span>
-                      <span className="ml-2 text-sm text-gray-500">
-                        {blog.readTime} {displayLanguage === 'vi' ? 'phút' : 'min'}
+                  <CardContent className="p-6 grow flex flex-col">
+                    {/* Category tag */}
+                    <div className="mb-4">
+                      <span className="inline-block bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full">
+                        {blog.displayCategory}
                       </span>
                     </div>
 
-                    {/* Title */}
-                    <h3 className="text-xl font-bold mb-3 line-clamp-2">
+                    {/* Title - LUÔN HIỆN 2 DÒNG */}
+                    <h3 className="text-xl font-bold mb-3 min-h-14 line-clamp-2 text-gray-800 group-hover:text-primary transition-colors">
                       {blog.displayTitle}
                     </h3>
 
-                    {/* Excerpt */}
-                    <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-                      {blog.displayExcerpt || blog.content?.substring(0, 150) + '...'}
+                    {/* Excerpt - LUÔN HIỆN 3 DÒNG */}
+                    <p className="text-gray-600 text-sm grow min-h-16 line-clamp-3 mb-6">
+                      {blog.displayExcerpt || blog.content?.substring(0, 120) + '...'}
                     </p>
 
                     {/* Meta info */}
-                    <div className="flex items-center justify-between text-sm text-gray-500 mt-4 pt-4 border-t">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{blog.author || 'Admin'}</span>
-                      </div>
-                      <div className="text-right">
-                        <div>{formatDate(blog.created_at)}</div>
+                    <div className="mt-auto pt-5 border-t border-gray-200">
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                          </svg>
+                          <span className="font-medium">{blog.author || 'Hitek Team'}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                          </svg>
+                          <div>{formatDate(blog.created_at)}</div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
 
-                  <CardFooter className="p-6 pt-0">
+                  <CardFooter className="px-6 pb-6 pt-0">
                     <Button 
-                      className="w-full"
-                      variant="secondary"
+                      className="w-full bg-primary hover:bg-primary/80 text-white transition-all"
+                      variant="default"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleViewDetails(blog);
                       }}
                     >
                       {displayLanguage === 'vi' ? 'Đọc tiếp' : 'Read more'}
+                      <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                      </svg>
                     </Button>
                   </CardFooter>
                 </Card>
               ))}
             </div>
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 mt-12">
-                <Button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  variant="outline"
-                  size="sm"
-                >
-                  ← {displayLanguage === 'vi' ? 'Trước' : 'Prev'}
-                </Button>
+            {/* Pagination đơn giản - LUÔN HIỆN KHI CÓ BÀI VIẾT */}
+{allBlogs.length > 0 && (
+  <div className="flex justify-center items-center gap-4 mt-16 pt-8 border-t border-gray-200">
+    <Button
+      onClick={() => handlePageChange(currentPage - 1)}
+      disabled={currentPage === 1}
+      variant="outline"
+      size="lg"
+      className="border-gray-300 hover:border-gray-400 disabled:opacity-40"
+    >
+      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+      </svg>
+      {displayLanguage === 'vi' ? 'Trước' : 'Prev'}
+    </Button>
 
-                <span className="text-sm text-gray-600">
-                  {displayLanguage === 'vi' ? 'Trang' : 'Page'} {currentPage} / {totalPages}
-                </span>
+    <div className="text-sm text-gray-600 font-medium">
+      {displayLanguage === 'vi' ? 'Trang' : 'Page'} {currentPage} / {totalPages}
+    </div>
 
-                <Button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  variant="outline"
-                  size="sm"
-                >
-                  {displayLanguage === 'vi' ? 'Sau' : 'Next'} →
-                </Button>
-              </div>
-            )}
+    <Button
+      onClick={() => handlePageChange(currentPage + 1)}
+      disabled={currentPage === totalPages}
+      variant="outline"
+      size="lg"
+      className="border-gray-300 hover:border-gray-400 disabled:opacity-40"
+    >
+      {displayLanguage === 'vi' ? 'Sau' : 'Next'}
+      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+      </svg>
+    </Button>
+  </div>
+)}
           </>
         )}
       </div>

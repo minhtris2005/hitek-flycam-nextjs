@@ -10,10 +10,10 @@ import Image from "next/image";
 import { useLanguage } from "@/app/contexts/LanguageContext";
 
 // Import images
-import photo1 from "@/public/assets/home/project/photo-1.avif";
-import photo2 from "@/public/assets/home/project/photo-2.avif";
-import photo3 from "@/public/assets/home/project/photo-3.avif";
-import photo4 from "@/public/assets/home/project/photo-4.avif";
+import photo1 from "@/public/assets/home/project/photo-1.webp";
+import photo2 from "@/public/assets/home/project/photo-2.webp";
+import photo3 from "@/public/assets/home/project/photo-3.webp";
+import photo4 from "@/public/assets/home/project/photo-4.webp";
 
 interface Project {
   title: string;
