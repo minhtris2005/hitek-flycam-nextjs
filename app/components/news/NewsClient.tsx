@@ -1,14 +1,13 @@
-// components/blog/BlogClient.tsx
+// components/news/NewsClient.tsx
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { Skeleton } from "@/app/components/ui/skeleton";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/app/contexts/LanguageContext";
-import BlogCarousel from "./BlogCarousel";
-import ThumbnailCarousel from "./ThumbnailCarousel";
-import AllBlogsPage from "./AllBlogsPage";
-import { EnhancedBlogPost } from "@/types";
+import NewsCarousel from "./NewsCarousel";
+import NewsThumbnailCarousel from "./NewsThumbnailCarousel";
+import AllNewsPage from "./AllNewsPage";
 
 // Helper functions
 const getFallbackImage = (): string => {
@@ -31,42 +30,75 @@ const getSafeTranslation = (value: unknown, fallback: string = ""): string => {
   return String(value);
 };
 
-interface BlogClientProps {
-  initialPosts?: EnhancedBlogPost[];
+// Interface cho news từ Supabase
+interface SupabaseNewsPost {
+  id: string;
+  title_vi: string;
+  title_en?: string | null;
+  excerpt_vi?: string | null;
+  excerpt_en?: string | null;
+  content_vi?: string | null;
+  content_en?: string | null;
+  slug_vi: string;
+  slug_en?: string | null;
+  meta_title_vi?: string | null;
+  meta_title_en?: string | null;
+  meta_description_vi?: string | null;
+  meta_description_en?: string | null;
+  image?: string | null;
+  date: string;
+  author?: string | null;
+  category?: string | null;
+  status: string;
+  is_featured: boolean;
+  source?: string | null;
+  tags?: string[];
+  created_at: string;
+  updated_at?: string | null;
+  user_id?: string | null;
+  views?: number;
 }
 
-// Interface cho Supabase response
-interface SupabaseBlogPost {
+interface EnhancedNewsPost {
   id: string;
   title: string;
-  title_vi?: string;
-  title_en?: string;
-  excerpt?: string;
-  excerpt_vi?: string;
-  excerpt_en?: string;
-  content?: string;
-  content_vi?: string;
-  content_en?: string;
-  image?: string;
-  category?: string;
-  author?: string;
-  status: string;
+  title_vi?: string | null;
+  title_en?: string | null;
+  excerpt: string;
+  excerpt_vi?: string | null;
+  excerpt_en?: string | null;
+  content: string;
+  content_vi?: string | null;
+  content_en?: string | null;
+  image?: string | null;
+  category?: string | null;
+  author?: string | null;
+  status: 'published' | 'draft';
   created_at: string;
   views?: number;
   likes?: number;
   comments?: number;
   tags?: string[];
-  meta_title?: string;
-  meta_description?: string;
+  meta_title?: string | null;
+  meta_description?: string | null;
   readTime?: string;
-  slug?: string;
-  slug_vi?: string;
-  slug_en?: string;
+  slug?: string | null;
+  slug_vi?: string | null;
+  slug_en?: string | null;
+  date: string;
+  is_featured: boolean;
+  source?: string | null;
+  hasEnglish?: boolean;
+  hasVietnamese?: boolean;
 }
 
-export default function BlogClient({ initialPosts }: BlogClientProps) {
-  const { t } = useLanguage();
-  const [blogPosts, setBlogPosts] = useState<EnhancedBlogPost[]>(initialPosts || []);
+interface NewsClientProps {
+  initialPosts?: EnhancedNewsPost[];
+}
+
+export default function NewsClient({ initialPosts }: NewsClientProps) {
+  const { language } = useLanguage();
+  const [newsPosts, setNewsPosts] = useState<EnhancedNewsPost[]>(initialPosts || []);
   const [loading, setLoading] = useState(!initialPosts);
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -79,12 +111,18 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
   const prevBtnRef = useRef<HTMLButtonElement>(null);
   const thumbnailContainerRef = useRef<HTMLDivElement>(null);
   const backgroundImageRef = useRef<HTMLDivElement>(null);
-  const allBlogsRef = useRef<HTMLDivElement>(null);
+  const allNewsRef = useRef<HTMLDivElement>(null);
 
-  // Determine display language (only vi or en)
-  const displayLanguage = getSafeTranslation(t("lang")) === 'vi' ? 'vi' : 'en';
+  // Determine display language
+  const displayLanguage = language === 'vi' ? 'vi' : 'en';
 
-  const fetchBlogPosts = useCallback(async () => {
+  // Helper function to calculate read time
+  const calculateReadTime = (content: string): number => {
+    const words = content?.trim().split(/\s+/).length || 0;
+    return Math.ceil(words / 200);
+  };
+
+  const fetchNewsPosts = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -93,12 +131,12 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
       
       if (!supabaseUrl || !supabaseKey) {
         console.error('Missing Supabase env variables');
-        setBlogPosts([]);
+        setNewsPosts([]);
         return;
       }
 
       const response = await fetch(
-        `${supabaseUrl}/rest/v1/blog_posts?status=eq.published&order=created_at.desc&limit=6`,
+        `${supabaseUrl}/rest/v1/news?status=eq.published&order=created_at.desc&limit=6`,
         {
           headers: {
             'apikey': supabaseKey,
@@ -109,67 +147,90 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
       );
 
       if (response.ok) {
-        const data = await response.json() as SupabaseBlogPost[];
+        const data = await response.json() as SupabaseNewsPost[];
         
         if (data && data.length > 0) {
-          const enhancedPosts: EnhancedBlogPost[] = data.map((post) => ({
-            id: post.id,
-            title: post.title || '',
-            title_vi: post.title_vi,
-            title_en: post.title_en,
-            excerpt: post.excerpt || '',
-            excerpt_vi: post.excerpt_vi,
-            excerpt_en: post.excerpt_en,
-            content: post.content || '',
-            content_vi: post.content_vi,
-            content_en: post.content_en,
-            image: post.image,
-            category: post.category,
-            author: post.author,
-            status: post.status as 'published' | 'draft',
-            created_at: post.created_at,
-            views: post.views || 0,
-            likes: post.likes || 0,
-            comments: post.comments || 0,
-            tags: post.tags || [],
-            meta_title: post.meta_title,
-            meta_description: post.meta_description,
-            readTime: post.readTime || '5 min',
-            slug: post.slug || `post-${post.id}`,
-            date: post.created_at || new Date().toISOString(),
-            slug_vi: post.slug_vi,
-            slug_en: post.slug_en,
-            hasEnglish: !!post.title_en || !!post.content_en,
-            hasVietnamese: !!post.title_vi || !!post.content_vi,
-          }));
+          const enhancedPosts: EnhancedNewsPost[] = data.map((post) => {
+            // Lấy dữ liệu theo ngôn ngữ
+            const title = displayLanguage === 'vi' 
+              ? (post.title_vi || post.title_en || 'Tin tức không có tiêu đề')
+              : (post.title_en || post.title_vi || 'Untitled news');
+            
+            const excerpt = displayLanguage === 'vi'
+              ? (post.excerpt_vi || post.excerpt_en || '')
+              : (post.excerpt_en || post.excerpt_vi || '');
+            
+            const content = displayLanguage === 'vi'
+              ? (post.content_vi || post.content_en || '')
+              : (post.content_en || post.content_vi || '');
+            
+            const slug = displayLanguage === 'vi'
+              ? (post.slug_vi || post.slug_en || `tin-tuc-${post.id}`)
+              : (post.slug_en || post.slug_vi || `news-${post.id}`);
+            
+            const category = post.category || (displayLanguage === 'vi' ? 'Tin tức' : 'News');
+
+            return {
+              id: post.id,
+              title,
+              title_vi: post.title_vi,
+              title_en: post.title_en,
+              excerpt,
+              excerpt_vi: post.excerpt_vi,
+              excerpt_en: post.excerpt_en,
+              content,
+              content_vi: post.content_vi,
+              content_en: post.content_en,
+              image: post.image,
+              category,
+              author: post.author,
+              status: post.status as 'published' | 'draft',
+              created_at: post.created_at,
+              views: post.views || 0,
+              likes: 0,
+              comments: 0,
+              tags: post.tags || [],
+              meta_title: displayLanguage === 'vi' ? post.meta_title_vi : post.meta_title_en,
+              meta_description: displayLanguage === 'vi' ? post.meta_description_vi : post.meta_description_en,
+              readTime: `${calculateReadTime(content)} min`,
+              slug,
+              slug_vi: post.slug_vi,
+              slug_en: post.slug_en,
+              date: post.date || post.created_at,
+              is_featured: post.is_featured || false,
+              source: post.source,
+              hasEnglish: !!post.title_en || !!post.content_en,
+              hasVietnamese: !!post.title_vi || !!post.content_vi,
+            };
+          });
           
-          setBlogPosts(enhancedPosts);
+          setNewsPosts(enhancedPosts);
         } else {
-          setBlogPosts([]);
+          setNewsPosts([]);
         }
       } else {
         console.error('Failed to fetch from Supabase');
-        setBlogPosts([]);
+        setNewsPosts([]);
       }
     } catch (error) {
-      console.error("Error fetching blog posts:", error);
-      setBlogPosts([]);
+      console.error("Error fetching news posts:", error);
+      setNewsPosts([]);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [displayLanguage]);
 
   useEffect(() => {
     if (!initialPosts) {
-      fetchBlogPosts();
+      fetchNewsPosts();
     }
-  }, [fetchBlogPosts, initialPosts]);
+  }, [fetchNewsPosts, initialPosts]);
 
   // Add scroll listener to show "Back to Top" button
   useEffect(() => {
     const handleScroll = () => {
-      if (allBlogsRef.current) {
-        const rect = allBlogsRef.current.getBoundingClientRect();
+      if (allNewsRef.current) {
+        const rect = allNewsRef.current.getBoundingClientRect();
         setShowBackToTop(rect.top < 0);
       }
     };
@@ -178,10 +239,10 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Function to scroll down to AllBlogsPage
-  const scrollToAllBlogs = () => {
-    if (allBlogsRef.current) {
-      allBlogsRef.current.scrollIntoView({
+  // Function to scroll down to AllNewsPage
+  const scrollToAllNews = () => {
+    if (allNewsRef.current) {
+      allNewsRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'start'
       });
@@ -198,7 +259,7 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
 
   // Function to change slide with animation
   const showSlider = (type: 'next' | 'prev') => {
-    if (isAnimating || blogPosts.length <= 1) return;
+    if (isAnimating || newsPosts.length <= 1) return;
 
     setIsAnimating(true);
 
@@ -208,17 +269,17 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
 
     // Determine new index
     const newIndex = type === 'next'
-      ? (currentIndex + 1) % blogPosts.length
-      : currentIndex === 0 ? blogPosts.length - 1 : currentIndex - 1;
+      ? (currentIndex + 1) % newsPosts.length
+      : currentIndex === 0 ? newsPosts.length - 1 : currentIndex - 1;
 
-    // Get elements to fade - ONLY IMAGE AND BLOG CONTENT, NOT CONTROLS
-    const blogContentWrapper = carouselRef.current?.querySelector('.blog-content-wrapper');
+    // Get elements to fade - ONLY IMAGE AND NEWS CONTENT, NOT CONTROLS
+    const newsContentWrapper = carouselRef.current?.querySelector('.news-content-wrapper');
 
     // Start fading out content
-    if (blogContentWrapper) {
-      (blogContentWrapper as HTMLElement).style.opacity = '0';
-      (blogContentWrapper as HTMLElement).style.transform = 'scale(0.98)';
-      (blogContentWrapper as HTMLElement).style.transition = 'all 0.3s ease-in-out';
+    if (newsContentWrapper) {
+      (newsContentWrapper as HTMLElement).style.opacity = '0';
+      (newsContentWrapper as HTMLElement).style.transform = 'scale(0.98)';
+      (newsContentWrapper as HTMLElement).style.transition = 'all 0.3s ease-in-out';
     }
 
     // After fade out completes, change content
@@ -228,18 +289,18 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
 
       // Wait a bit for new content to render, then fade in
       requestAnimationFrame(() => {
-        // Restore blog content
-        if (blogContentWrapper) {
-          (blogContentWrapper as HTMLElement).style.opacity = '1';
-          (blogContentWrapper as HTMLElement).style.transform = 'scale(1)';
+        // Restore news content
+        if (newsContentWrapper) {
+          (newsContentWrapper as HTMLElement).style.opacity = '1';
+          (newsContentWrapper as HTMLElement).style.transform = 'scale(1)';
         }
       });
 
       // End animation and reset styles
       setTimeout(() => {
         // Reset styles
-        if (blogContentWrapper) {
-          (blogContentWrapper as HTMLElement).style.transition = '';
+        if (newsContentWrapper) {
+          (newsContentWrapper as HTMLElement).style.transition = '';
         }
 
         setIsAnimating(false);
@@ -259,27 +320,27 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
   // Handle view details click
   const handleViewDetails = (postId: string, e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    const post = blogPosts.find(p => p.id === postId);
+    const post = newsPosts.find(p => p.id === postId);
     if (post) {
       // Use slug by current language
       const slug = displayLanguage === 'vi'
         ? (post.slug_vi || post.slug_en || post.slug || post.id)
         : (post.slug_en || post.slug_vi || post.slug || post.id);
-      router.push(`/blog/${slug}`);
+      router.push(`/news/${slug}`);
     } else {
-      router.push(`/blog/${postId}`);
+      router.push(`/news/${postId}`);
     }
   };
 
   // Get posts for thumbnail
   const getThumbnailPosts = () => {
-    if (blogPosts.length <= 1) return [];
+    if (newsPosts.length <= 1) return [];
     const thumbnailPosts = [];
     
-    for (let i = 1; i < blogPosts.length; i++) {
-      const index = (currentIndex + i) % blogPosts.length;
+    for (let i = 1; i < newsPosts.length; i++) {
+      const index = (currentIndex + i) % newsPosts.length;
       thumbnailPosts.push({
-        ...blogPosts[index],
+        ...newsPosts[index],
         originalIndex: index
       });
     }
@@ -293,40 +354,40 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
       <div className="w-full h-screen bg-black flex items-center justify-center">
         <Skeleton className="w-32 h-8 bg-gray-800" />
         <div className="text-white text-xl ml-4">
-          {getSafeTranslation(t('loading_posts'), 'Loading posts...')}
+          {getSafeTranslation('loading_posts', displayLanguage === 'vi' ? 'Đang tải tin tức...' : 'Loading news...')}
         </div>
       </div>
     );
   }
 
-  if (blogPosts.length === 0) {
+  if (newsPosts.length === 0) {
     return (
       <div className="w-full h-screen bg-black flex items-center justify-center">
         <div className="text-white text-2xl">
-          {getSafeTranslation(t('no_posts'), 'No posts available')}
+          {getSafeTranslation('no_posts', displayLanguage === 'vi' ? 'Chưa có tin tức nào' : 'No news available')}
         </div>
       </div>
     );
   }
 
-  const currentPost = blogPosts[currentIndex];
+  const currentPost = newsPosts[currentIndex];
   const thumbnailPosts = getThumbnailPosts();
 
   // Prepare props with correct types
-  const blogCarouselProps = {
+  const newsCarouselProps = {
     currentPost,
     currentIndex,
-    blogPostsLength: blogPosts.length,
+    newsPostsLength: newsPosts.length,
     backgroundImageRef: backgroundImageRef as React.RefObject<HTMLDivElement>,
     getFallbackImage,
   };
 
-  const blogControlsProps = {
+  const newsControlsProps = {
     isAnimating,
     onPrev: () => showSlider('prev'),
     onNext: () => showSlider('next'),
     onViewDetails: handleViewDetails,
-    onViewAllPosts: scrollToAllBlogs,
+    onViewAllPosts: scrollToAllNews,
     currentPostId: currentPost.id,
     prevBtnRef: prevBtnRef as React.RefObject<HTMLButtonElement>,
     nextBtnRef: nextBtnRef as React.RefObject<HTMLButtonElement>,
@@ -342,32 +403,32 @@ export default function BlogClient({ initialPosts }: BlogClientProps) {
 
   return (
     <div className="relative">
-      {/* Main Blog Carousel section */}
+      {/* Main News Carousel section */}
       <div 
         ref={carouselRef}
         className="w-full h-screen overflow-hidden relative bg-black"
       >
-        <BlogCarousel 
-          {...blogCarouselProps}
-          {...blogControlsProps}
+        <NewsCarousel 
+          {...newsCarouselProps}
+          {...newsControlsProps}
         />
 
         {thumbnailPosts.length > 0 && (
-          <ThumbnailCarousel {...thumbnailCarouselProps} />
+          <NewsThumbnailCarousel {...thumbnailCarouselProps} />
         )}
       </div>
 
-      {/* AllBlogsPage section - ALWAYS VISIBLE */}
-      <div ref={allBlogsRef} className="relative">
-        <AllBlogsPage />
+      {/* AllNewsPage section - ALWAYS VISIBLE */}
+      <div ref={allNewsRef} className="relative">
+        <AllNewsPage />
       </div>
 
       {/* Back to Top button - only shows when scrolled down */}
       {showBackToTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 z-50 bg-[#d62323] text-white p-3 rounded-full shadow-lg hover:bg-red-600 transition-colors animate-bounce"
-          aria-label={getSafeTranslation(t('back_to_top'), 'Back to top')}
+          className="fixed bottom-8 right-8 z-50 bg-primary text-white p-3 rounded-full shadow-lg hover:bg-primary/90 transition-colors animate-bounce"
+          aria-label={getSafeTranslation('back_to_top', displayLanguage === 'vi' ? 'Về đầu trang' : 'Back to top')}
         >
           ↑
         </button>

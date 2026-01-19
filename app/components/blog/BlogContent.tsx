@@ -47,9 +47,6 @@ const BlogContent: React.FC<BlogContentProps> = ({
     return categoryTranslations[category] || category;
   };
   
-  console.log('Current Post:', currentPost);
-  console.log('Title:', getTitle());
-  console.log('Category:', getCategory());
   
   // Check if post has English version
   const hasEnglishVersion = () => {

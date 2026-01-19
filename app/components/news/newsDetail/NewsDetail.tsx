@@ -1,3 +1,4 @@
+// app/components/news/NewsDetail/index.tsx
 'use client';
 
 import React, { useEffect, useState, useMemo } from "react";
@@ -7,15 +8,14 @@ import { Loader2, ArrowLeft, Menu } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Separator } from "@/app/components/ui/separator";
 
-import { HeroSection } from "@/app/components/blog/blog-detail/HeroSection";
+import { NewsHeroSection } from "@/app/components/news/newsDetail/NewsHeroSection";
 import { ArticleMetadata } from "@/app/components/blog/blog-detail/ArticleMetadata";
 import { ArticleTitleAndExcerpt } from "@/app/components/blog/blog-detail/ArticleTitleAndExcerpt";
 import { ArticleActions } from "@/app/components/blog/blog-detail/ArticleActions";
 import { ArticleContent } from "@/app/components/blog/blog-detail/ArticleContent";
 import { AuthorBio } from "@/app/components/blog/blog-detail/AuthorBio";
-import { RelatedPosts } from "@/app/components/blog/blog-detail/RelatedPosts";
+import { RelatedNews } from "@/app/components/news/newsDetail/RelatedNews";
 import { TableOfContents } from "@/app/components/blog/blog-detail/TableOfContents";
-
 
 interface ArticlePost {
   id: string;
@@ -32,31 +32,38 @@ interface ArticlePost {
   read_time?: number;
   created_at?: string;
   updated_at?: string;
+  is_featured?: boolean;
+  source?: string;
+  meta_title?: string;
+  meta_description?: string;
 }
 
-interface BlogPost {
+interface NewsPost {
   id: string;
-  title: string;
-  title_vi?: string | null;
+  title_vi: string;
   title_en?: string | null;
-  excerpt?: string | null;
   excerpt_vi?: string | null;
   excerpt_en?: string | null;
-  content?: string | null;
   content_vi?: string | null;
   content_en?: string | null;
-  slug?: string | null;
-  slug_vi?: string | null;
+  slug_vi: string;
   slug_en?: string | null;
+  meta_title_vi?: string | null;
+  meta_title_en?: string | null;
+  meta_description_vi?: string | null;
+  meta_description_en?: string | null;
   image?: string | null;
   date?: string | null;
   author?: string | null;
   category?: string | null;
+  status?: string | null;
+  is_featured?: boolean | null;
+  source?: string | null;
+  tags?: string[] | null;
   created_at?: string;
   updated_at?: string | null;
-  views?: number;
-  tags?: string[];
-  status?: string;
+  user_id?: string | null;
+  views?: number | null;
 }
 
 interface LocalizedPost {
@@ -65,12 +72,16 @@ interface LocalizedPost {
   excerpt: string;
   content: string;
   slug: string;
+  meta_title?: string;
+  meta_description?: string;
   image?: string;
   date?: string;
   author?: string;
   category?: string;
   views?: number;
   tags?: string[];
+  is_featured?: boolean;
+  source?: string;
 }
 
 interface Heading {
@@ -91,20 +102,21 @@ interface RelatedPost {
   slug: string;
 }
 
-export default function BlogDetail() {
+export default function NewsDetail() {
   const { language } = useLanguage();
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
 
-  const [post, setPost] = useState<BlogPost | null>(null);
+  const [post, setPost] = useState<NewsPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
   const [showMobileToc, setShowMobileToc] = useState(false);
   const [activeHeadingId, setActiveHeadingId] = useState("");
 
   const displayLanguage = language === 'vi' ? 'vi' : 'en';
-    const convertToRelatedPost = (lp: LocalizedPost): RelatedPost => ({
+
+  const convertToRelatedPost = (lp: LocalizedPost): RelatedPost => ({
     id: lp.id,
     title: lp.title,
     excerpt: lp.excerpt,
@@ -113,28 +125,37 @@ export default function BlogDetail() {
     author: lp.author,
     category: lp.category,
     slug: lp.slug,
-    });
+  });
+
   // Localize post helper
-  const localizePost = (p: BlogPost, lang: 'vi' | 'en'): LocalizedPost => ({
+  const localizePost = (p: NewsPost, lang: 'vi' | 'en'): LocalizedPost => ({
     id: p.id,
     title: lang === 'vi'
-      ? (p.title_vi || p.title_en || p.title || '')
-      : (p.title_en || p.title_vi || p.title || ''),
+      ? p.title_vi
+      : (p.title_en || p.title_vi),
     excerpt: lang === 'vi'
-      ? (p.excerpt_vi || p.excerpt_en || p.excerpt || '')
-      : (p.excerpt_en || p.excerpt_vi || p.excerpt || ''),
+      ? (p.excerpt_vi || '')
+      : (p.excerpt_en || p.excerpt_vi || ''),
     content: lang === 'vi'
-      ? (p.content_vi || p.content_en || p.content || '')
-      : (p.content_en || p.content_vi || p.content || ''),
+      ? (p.content_vi || '')
+      : (p.content_en || p.content_vi || ''),
     slug: lang === 'vi'
-      ? (p.slug_vi || p.slug_en || p.slug || p.id)
-      : (p.slug_en || p.slug_vi || p.slug || p.id),
+      ? p.slug_vi
+      : (p.slug_en || p.slug_vi),
+    meta_title: lang === 'vi'
+      ? (p.meta_title_vi || '')
+      : (p.meta_title_en || p.meta_title_vi || ''),
+    meta_description: lang === 'vi'
+      ? (p.meta_description_vi || '')
+      : (p.meta_description_en || p.meta_description_vi || ''),
     image: p.image || undefined,
     date: p.date || p.created_at || undefined,
     author: p.author || undefined,
     category: p.category || undefined,
     views: p.views || 0,
     tags: p.tags || [],
+    is_featured: p.is_featured || false,
+    source: p.source || undefined,
   });
 
   // Convert LocalizedPost to ArticlePost for component compatibility
@@ -150,6 +171,10 @@ export default function BlogDetail() {
     category: lp.category,
     views: lp.views,
     tags: lp.tags,
+    is_featured: lp.is_featured,
+    source: lp.source,
+    meta_title: lp.meta_title,
+    meta_description: lp.meta_description,
     created_at: lp.date || new Date().toISOString(),
   });
 
@@ -167,11 +192,11 @@ export default function BlogDetail() {
         }
 
         // Try multiple queries: slug_vi, slug_en, then id
-        let foundPost: BlogPost | null = null;
+        let foundPost: NewsPost | null = null;
 
         // Try slug_vi first
         let response = await fetch(
-          `${supabaseUrl}/rest/v1/blog_posts?slug_vi=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
+          `${supabaseUrl}/rest/v1/news?slug_vi=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
           {
             headers: {
               'apikey': supabaseKey,
@@ -191,7 +216,7 @@ export default function BlogDetail() {
         // Try slug_en if not found
         if (!foundPost) {
           response = await fetch(
-            `${supabaseUrl}/rest/v1/blog_posts?slug_en=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
+            `${supabaseUrl}/rest/v1/news?slug_en=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
             {
               headers: {
                 'apikey': supabaseKey,
@@ -212,7 +237,7 @@ export default function BlogDetail() {
         // Try id if still not found
         if (!foundPost) {
           response = await fetch(
-            `${supabaseUrl}/rest/v1/blog_posts?id=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
+            `${supabaseUrl}/rest/v1/news?id=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
             {
               headers: {
                 'apikey': supabaseKey,
@@ -239,11 +264,11 @@ export default function BlogDetail() {
             fetchRelatedPosts(foundPost.id, foundPost.category, supabaseUrl, supabaseKey);
           }
         } else {
-          console.log('Post not found for slug:', slug);
+          console.log('News post not found for slug:', slug);
           setPost(null);
         }
       } catch (error) {
-        console.error("Error fetching post:", error);
+        console.error("Error fetching news post:", error);
         setPost(null);
       } finally {
         setLoading(false);
@@ -259,7 +284,7 @@ export default function BlogDetail() {
   const incrementViewCount = async (postId: string, supabaseUrl: string, supabaseKey: string) => {
     try {
       const getResponse = await fetch(
-        `${supabaseUrl}/rest/v1/blog_posts?id=eq.${postId}&select=views`,
+        `${supabaseUrl}/rest/v1/news?id=eq.${postId}&select=views`,
         {
           headers: {
             'apikey': supabaseKey,
@@ -273,7 +298,7 @@ export default function BlogDetail() {
         const currentViews = data[0]?.views || 0;
 
         await fetch(
-          `${supabaseUrl}/rest/v1/blog_posts?id=eq.${postId}`,
+          `${supabaseUrl}/rest/v1/news?id=eq.${postId}`,
           {
             method: 'PATCH',
             headers: {
@@ -292,35 +317,35 @@ export default function BlogDetail() {
   };
 
   const fetchRelatedPosts = async (
-  currentPostId: string,
-  category: string,
-  supabaseUrl: string,
-  supabaseKey: string
-) => {
-  try {
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/blog_posts?category=eq.${encodeURIComponent(category)}&id=neq.${currentPostId}&status=eq.published&limit=3&order=created_at.desc`,
-      {
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    currentPostId: string,
+    category: string,
+    supabaseUrl: string,
+    supabaseKey: string
+  ) => {
+    try {
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/news?category=eq.${encodeURIComponent(category)}&id=neq.${currentPostId}&status=eq.published&limit=3&order=created_at.desc`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
-    if (response.ok) {
-      const data = await response.json();
-      const localized = data.map((p: BlogPost) => {
-        const lp = localizePost(p, displayLanguage);
-        return convertToRelatedPost(lp); // Dùng hàm mới
-      });
-      setRelatedPosts(localized);
+      if (response.ok) {
+        const data = await response.json();
+        const localized = data.map((p: NewsPost) => {
+          const lp = localizePost(p, displayLanguage);
+          return convertToRelatedPost(lp);
+        });
+        setRelatedPosts(localized);
+      }
+    } catch (error) {
+      console.error("Error fetching related news:", error);
     }
-  } catch (error) {
-    console.error("Error fetching related posts:", error);
-  }
-};
+  };
 
   // Localized post data
   const localizedPost = useMemo((): LocalizedPost | null => {
@@ -426,8 +451,8 @@ export default function BlogDetail() {
         <div className="text-center">
           <Loader2 className="animate-spin mx-auto mb-4 w-8 h-8 text-primary" />
           <p className="text-muted-foreground">
-            {displayLanguage === 'vi' ? 'Đang tải bài viết...' : 'Loading article...'}
-        </p>
+            {displayLanguage === 'vi' ? 'Đang tải tin tức...' : 'Loading news...'}
+          </p>
         </div>
       </div>
     );
@@ -438,9 +463,9 @@ export default function BlogDetail() {
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
           <h1 className="text-2xl font-bold mb-4">
-            {displayLanguage === 'vi' ? 'Không tìm thấy bài viết' : 'Article not found'}
+            {displayLanguage === 'vi' ? 'Không tìm thấy tin tức' : 'News not found'}
           </h1>
-          <Button onClick={() => router.push("/blog")}>
+          <Button onClick={() => router.push("/news")}>
             {displayLanguage === 'vi' ? 'Quay lại danh sách' : 'Back to list'}
           </Button>
         </div>
@@ -482,7 +507,7 @@ export default function BlogDetail() {
         }
       `}</style>
 
-      <HeroSection
+      <NewsHeroSection
         image={post.image || undefined}
         title={localizedPost.title}
       />
@@ -542,7 +567,7 @@ export default function BlogDetail() {
             {/* Back button when no hero image */}
             {!post.image && (
               <div className="mb-8">
-                <Button variant="ghost" onClick={() => router.push("/blog")} className="mb-6">
+                <Button variant="ghost" onClick={() => router.push("/news")} className="mb-6">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   {displayLanguage === 'vi' ? 'Quay lại' : 'Go back'}
                 </Button>
@@ -550,6 +575,21 @@ export default function BlogDetail() {
             )}
 
             <article className="bg-white text-card-foreground rounded-2xl shadow-lg p-6 md:p-10 -mt-20 relative z-10 border border-border">
+              {/* Source information */}
+              {articlePost.source && (
+                <div className="mb-4 text-sm text-muted-foreground">
+                  {displayLanguage === 'vi' ? 'Nguồn: ' : 'Source: '}
+                  <a 
+                    href={articlePost.source} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    {articlePost.source}
+                  </a>
+                </div>
+              )}
+              
               <ArticleMetadata
                 post={articlePost}
                 readTime={readTime}
@@ -571,10 +611,10 @@ export default function BlogDetail() {
                 <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
               </ArticleContent>
               
-              {post.tags && post.tags.length > 0 && (
+              {articlePost.tags && articlePost.tags.length > 0 && (
                 <div className="mt-8">
                   <div className="flex flex-wrap gap-2">
-                    {post.tags.map((tag) => (
+                    {articlePost.tags.map((tag) => (
                       <span
                         key={tag}
                         className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground"
@@ -592,11 +632,11 @@ export default function BlogDetail() {
             </article>
 
             {relatedPosts.length > 0 && (
-                <RelatedPosts
-                    relatedPosts={relatedPosts} // Bây giờ đúng type
-                    currentPostId={post.id}
-                />
-                )}
+              <RelatedNews
+                relatedPosts={relatedPosts}
+                currentPostId={post.id}
+              />
+            )}
           </div>
 
           {/* Table of Contents - Desktop */}

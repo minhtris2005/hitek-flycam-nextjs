@@ -1,11 +1,54 @@
+// components/news/NewsCarousel.tsx
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { BlogCarouselProps } from "@/types"; // XÓA EnhancedBlogPost khỏi import
-import BlogContent from "./BlogContent";
-import BlogControls from "@/app/components/blog/BlogControls";
+import NewsContent from "./NewsContent";
+import NewsControls from "./NewsControls";
 
-// MỞ RỘNG INTERFACE VỚI PROPS CỦA BlogControls
-interface ExtendedBlogCarouselProps extends BlogCarouselProps {
+// Interface cho NewsPost
+interface NewsPost {
+  id: string;
+  title: string;
+  title_vi?: string | null;
+  title_en?: string | null;
+  excerpt: string;
+  excerpt_vi?: string | null;
+  excerpt_en?: string | null;
+  content: string;
+  content_vi?: string | null;
+  content_en?: string | null;
+  image?: string | null;
+  category?: string | null;
+  author?: string | null;
+  status: 'published' | 'draft';
+  created_at: string;
+  views?: number;
+  likes?: number;
+  comments?: number;
+  tags?: string[];
+  meta_title?: string | null;
+  meta_description?: string | null;
+  readTime?: string;
+  slug?: string | null;
+  slug_vi?: string | null;
+  slug_en?: string | null;
+  date: string;
+  is_featured: boolean;
+  source?: string | null;
+  hasEnglish?: boolean;
+  hasVietnamese?: boolean;
+}
+
+// Props cho NewsCarousel
+interface NewsCarouselProps {
+  currentPost: NewsPost;
+  currentIndex: number;
+  newsPostsLength: number;
+  backgroundImageRef: React.RefObject<HTMLDivElement>;
+  getFallbackImage: (index?: number) => string;
+}
+
+// Extended props với controls
+interface ExtendedNewsCarouselProps extends NewsCarouselProps {
   isAnimating: boolean;
   onPrev: () => void;
   onNext: () => void;
@@ -14,12 +57,13 @@ interface ExtendedBlogCarouselProps extends BlogCarouselProps {
   currentPostId: string;
   prevBtnRef: React.RefObject<HTMLButtonElement>;
   nextBtnRef: React.RefObject<HTMLButtonElement>;
+  children?: React.ReactNode;
 }
 
-const BlogCarousel: React.FC<ExtendedBlogCarouselProps> = ({
+const NewsCarousel: React.FC<ExtendedNewsCarouselProps> = ({
   currentPost,
   currentIndex,
-  blogPostsLength,
+  newsPostsLength,
   backgroundImageRef,
   getFallbackImage,
   isAnimating,
@@ -97,17 +141,17 @@ const BlogCarousel: React.FC<ExtendedBlogCarouselProps> = ({
 
         <div className="absolute top-1/4 left-8 md:left-16 lg:left-24 transform -translate-y-1/4 w-full max-w-2xl px-4">
           <div className="max-w-xl">
-            {/* BlogContent ở trên */}
-            <div className="blog-content-wrapper mb-8">
-              <BlogContent
+            {/* NewsContent ở trên */}
+            <div className="news-content-wrapper mb-8">
+              <NewsContent
                 currentPost={currentPost}
                 currentIndex={currentIndex}
-                blogPostsLength={blogPostsLength}
+                newsPostsLength={newsPostsLength}
               />
             </div>
             
-            {/* BlogControls ở dưới */}
-            <BlogControls
+            {/* NewsControls ở dưới */}
+            <NewsControls
               isAnimating={isAnimating}
               onPrev={onPrev}
               onNext={onNext}
@@ -141,4 +185,4 @@ const BlogCarousel: React.FC<ExtendedBlogCarouselProps> = ({
   );
 };
 
-export default BlogCarousel;
+export default NewsCarousel;

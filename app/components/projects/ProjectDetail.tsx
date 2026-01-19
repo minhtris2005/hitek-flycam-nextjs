@@ -1,23 +1,24 @@
+// app/components/projects/ProjectDetail/index.tsx
 'use client';
 
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useLanguage } from "@/app/contexts/LanguageContext";
-import { Loader2, ArrowLeft, Menu } from "lucide-react";
+import { Loader2, ArrowLeft, Menu, MapPin, Ruler, Calendar, Users } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { Separator } from "@/app/components/ui/separator";
 
-import { HeroSection } from "@/app/components/blog/blog-detail/HeroSection";
+import { HeroSection } from "@/app/components/projects/ProjectDetail/HeroSection";
+import { RelatedProjects } from "@/app/components/projects/ProjectDetail/RelatedProjects";
+// Sử dụng các component từ blog
 import { ArticleMetadata } from "@/app/components/blog/blog-detail/ArticleMetadata";
 import { ArticleTitleAndExcerpt } from "@/app/components/blog/blog-detail/ArticleTitleAndExcerpt";
 import { ArticleActions } from "@/app/components/blog/blog-detail/ArticleActions";
 import { ArticleContent } from "@/app/components/blog/blog-detail/ArticleContent";
 import { AuthorBio } from "@/app/components/blog/blog-detail/AuthorBio";
-import { RelatedPosts } from "@/app/components/blog/blog-detail/RelatedPosts";
 import { TableOfContents } from "@/app/components/blog/blog-detail/TableOfContents";
 
-
-interface ArticlePost {
+interface ArticleProject {
   id: string;
   title: string;
   excerpt?: string;
@@ -27,6 +28,11 @@ interface ArticlePost {
   date?: string;
   author?: string;
   category?: string;
+  project_type?: string;
+  location?: string;
+  area?: number;
+  client?: string;
+  completion_date?: string;
   views?: number;
   tags?: string[];
   read_time?: number;
@@ -34,41 +40,54 @@ interface ArticlePost {
   updated_at?: string;
 }
 
-interface BlogPost {
+interface ProjectPost {
   id: string;
-  title: string;
-  title_vi?: string | null;
+  title_vi: string;
   title_en?: string | null;
-  excerpt?: string | null;
   excerpt_vi?: string | null;
   excerpt_en?: string | null;
-  content?: string | null;
   content_vi?: string | null;
   content_en?: string | null;
-  slug?: string | null;
-  slug_vi?: string | null;
+  slug_vi: string;
   slug_en?: string | null;
+  meta_title_vi?: string | null;
+  meta_title_en?: string | null;
+  meta_description_vi?: string | null;
+  meta_description_en?: string | null;
   image?: string | null;
   date?: string | null;
   author?: string | null;
   category?: string | null;
+  project_type?: string | null;
+  location?: string | null;
+  area?: number | null;
+  client?: string | null;
+  completion_date?: string | null;
+  status?: string | null;
   created_at?: string;
   updated_at?: string | null;
-  views?: number;
-  tags?: string[];
-  status?: string;
+  user_id?: string | null;
+  views?: number | null;
+  tags?: string[] | null;
 }
 
-interface LocalizedPost {
+interface LocalizedProject {
   id: string;
   title: string;
   excerpt: string;
   content: string;
   slug: string;
+  meta_title?: string;
+  meta_description?: string;
   image?: string;
   date?: string;
   author?: string;
   category?: string;
+  project_type?: string;
+  location?: string;
+  area?: number;
+  client?: string;
+  completion_date?: string;
   views?: number;
   tags?: string[];
 }
@@ -80,7 +99,7 @@ interface Heading {
   tagName: string;
 }
 
-interface RelatedPost {
+interface RelatedProject {
   id: string;
   title: string;
   excerpt?: string;
@@ -88,23 +107,26 @@ interface RelatedPost {
   date?: string;
   author?: string;
   category?: string;
+  project_type?: string;
+  location?: string;
   slug: string;
 }
 
-export default function BlogDetail() {
+export default function ProjectDetail() {
   const { language } = useLanguage();
   const params = useParams();
   const router = useRouter();
   const slug = params.slug as string;
 
-  const [post, setPost] = useState<BlogPost | null>(null);
+  const [project, setProject] = useState<ProjectPost | null>(null);
   const [loading, setLoading] = useState(true);
-  const [relatedPosts, setRelatedPosts] = useState<RelatedPost[]>([]);
+  const [relatedProjects, setRelatedProjects] = useState<RelatedProject[]>([]);
   const [showMobileToc, setShowMobileToc] = useState(false);
   const [activeHeadingId, setActiveHeadingId] = useState("");
 
   const displayLanguage = language === 'vi' ? 'vi' : 'en';
-    const convertToRelatedPost = (lp: LocalizedPost): RelatedPost => ({
+  
+  const convertToRelatedProject = (lp: LocalizedProject): RelatedProject => ({
     id: lp.id,
     title: lp.title,
     excerpt: lp.excerpt,
@@ -112,33 +134,47 @@ export default function BlogDetail() {
     date: lp.date,
     author: lp.author,
     category: lp.category,
+    project_type: lp.project_type,
+    location: lp.location,
     slug: lp.slug,
-    });
-  // Localize post helper
-  const localizePost = (p: BlogPost, lang: 'vi' | 'en'): LocalizedPost => ({
+  });
+
+  // Localize project helper
+  const localizeProject = (p: ProjectPost, lang: 'vi' | 'en'): LocalizedProject => ({
     id: p.id,
     title: lang === 'vi'
-      ? (p.title_vi || p.title_en || p.title || '')
-      : (p.title_en || p.title_vi || p.title || ''),
+      ? p.title_vi
+      : (p.title_en || p.title_vi),
     excerpt: lang === 'vi'
-      ? (p.excerpt_vi || p.excerpt_en || p.excerpt || '')
-      : (p.excerpt_en || p.excerpt_vi || p.excerpt || ''),
+      ? (p.excerpt_vi || '')
+      : (p.excerpt_en || p.excerpt_vi || ''),
     content: lang === 'vi'
-      ? (p.content_vi || p.content_en || p.content || '')
-      : (p.content_en || p.content_vi || p.content || ''),
+      ? (p.content_vi || '')
+      : (p.content_en || p.content_vi || ''),
     slug: lang === 'vi'
-      ? (p.slug_vi || p.slug_en || p.slug || p.id)
-      : (p.slug_en || p.slug_vi || p.slug || p.id),
+      ? p.slug_vi
+      : (p.slug_en || p.slug_vi),
+    meta_title: lang === 'vi'
+      ? (p.meta_title_vi || '')
+      : (p.meta_title_en || p.meta_title_vi || ''),
+    meta_description: lang === 'vi'
+      ? (p.meta_description_vi || '')
+      : (p.meta_description_en || p.meta_description_vi || ''),
     image: p.image || undefined,
     date: p.date || p.created_at || undefined,
     author: p.author || undefined,
     category: p.category || undefined,
+    project_type: p.project_type || undefined,
+    location: p.location || undefined,
+    area: p.area || undefined,
+    client: p.client || undefined,
+    completion_date: p.completion_date || undefined,
     views: p.views || 0,
     tags: p.tags || [],
   });
 
-  // Convert LocalizedPost to ArticlePost for component compatibility
-  const convertToArticlePost = (lp: LocalizedPost): ArticlePost => ({
+  // Convert LocalizedProject to ArticleProject for component compatibility
+  const convertToArticleProject = (lp: LocalizedProject): ArticleProject => ({
     id: lp.id,
     title: lp.title,
     excerpt: lp.excerpt,
@@ -148,14 +184,19 @@ export default function BlogDetail() {
     date: lp.date,
     author: lp.author,
     category: lp.category,
+    project_type: lp.project_type,
+    location: lp.location,
+    area: lp.area,
+    client: lp.client,
+    completion_date: lp.completion_date,
     views: lp.views,
     tags: lp.tags,
     created_at: lp.date || new Date().toISOString(),
   });
 
-  // Fetch post from Supabase
+  // Fetch project from Supabase
   useEffect(() => {
-    const fetchPost = async () => {
+    const fetchProject = async () => {
       try {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
         const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -167,11 +208,11 @@ export default function BlogDetail() {
         }
 
         // Try multiple queries: slug_vi, slug_en, then id
-        let foundPost: BlogPost | null = null;
+        let foundProject: ProjectPost | null = null;
 
         // Try slug_vi first
         let response = await fetch(
-          `${supabaseUrl}/rest/v1/blog_posts?slug_vi=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
+          `${supabaseUrl}/rest/v1/projects?slug_vi=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
           {
             headers: {
               'apikey': supabaseKey,
@@ -184,14 +225,14 @@ export default function BlogDetail() {
         if (response.ok) {
           const data = await response.json();
           if (data && data.length > 0) {
-            foundPost = data[0];
+            foundProject = data[0];
           }
         }
 
         // Try slug_en if not found
-        if (!foundPost) {
+        if (!foundProject) {
           response = await fetch(
-            `${supabaseUrl}/rest/v1/blog_posts?slug_en=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
+            `${supabaseUrl}/rest/v1/projects?slug_en=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
             {
               headers: {
                 'apikey': supabaseKey,
@@ -204,15 +245,15 @@ export default function BlogDetail() {
           if (response.ok) {
             const data = await response.json();
             if (data && data.length > 0) {
-              foundPost = data[0];
+              foundProject = data[0];
             }
           }
         }
 
         // Try id if still not found
-        if (!foundPost) {
+        if (!foundProject) {
           response = await fetch(
-            `${supabaseUrl}/rest/v1/blog_posts?id=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
+            `${supabaseUrl}/rest/v1/projects?id=eq.${encodeURIComponent(slug)}&status=eq.published&limit=1`,
             {
               headers: {
                 'apikey': supabaseKey,
@@ -225,41 +266,47 @@ export default function BlogDetail() {
           if (response.ok) {
             const data = await response.json();
             if (data && data.length > 0) {
-              foundPost = data[0];
+              foundProject = data[0];
             }
           }
         }
 
-        if (foundPost) {
-          setPost(foundPost);
+        if (foundProject) {
+          setProject(foundProject);
           // Increment view count
-          incrementViewCount(foundPost.id, supabaseUrl, supabaseKey);
-          // Load related posts
-          if (foundPost.category) {
-            fetchRelatedPosts(foundPost.id, foundPost.category, supabaseUrl, supabaseKey);
+          incrementViewCount(foundProject.id, supabaseUrl, supabaseKey);
+          // Load related projects
+          if (foundProject.category || foundProject.project_type) {
+            fetchRelatedProjects(
+              foundProject.id, 
+              foundProject.category, 
+              foundProject.project_type, 
+              supabaseUrl, 
+              supabaseKey
+            );
           }
         } else {
-          console.log('Post not found for slug:', slug);
-          setPost(null);
+          console.log('Project not found for slug:', slug);
+          setProject(null);
         }
       } catch (error) {
-        console.error("Error fetching post:", error);
-        setPost(null);
+        console.error("Error fetching project:", error);
+        setProject(null);
       } finally {
         setLoading(false);
       }
     };
 
     if (slug) {
-      fetchPost();
+      fetchProject();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
-  const incrementViewCount = async (postId: string, supabaseUrl: string, supabaseKey: string) => {
+  const incrementViewCount = async (projectId: string, supabaseUrl: string, supabaseKey: string) => {
     try {
       const getResponse = await fetch(
-        `${supabaseUrl}/rest/v1/blog_posts?id=eq.${postId}&select=views`,
+        `${supabaseUrl}/rest/v1/projects?id=eq.${projectId}&select=views`,
         {
           headers: {
             'apikey': supabaseKey,
@@ -273,7 +320,7 @@ export default function BlogDetail() {
         const currentViews = data[0]?.views || 0;
 
         await fetch(
-          `${supabaseUrl}/rest/v1/blog_posts?id=eq.${postId}`,
+          `${supabaseUrl}/rest/v1/projects?id=eq.${projectId}`,
           {
             method: 'PATCH',
             headers: {
@@ -291,55 +338,67 @@ export default function BlogDetail() {
     }
   };
 
-  const fetchRelatedPosts = async (
-  currentPostId: string,
-  category: string,
-  supabaseUrl: string,
-  supabaseKey: string
-) => {
-  try {
-    const response = await fetch(
-      `${supabaseUrl}/rest/v1/blog_posts?category=eq.${encodeURIComponent(category)}&id=neq.${currentPostId}&status=eq.published&limit=3&order=created_at.desc`,
-      {
-        headers: {
-          'apikey': supabaseKey,
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-        },
+  const fetchRelatedProjects = async (
+    currentProjectId: string,
+    category: string | null | undefined,
+    projectType: string | null | undefined,
+    supabaseUrl: string,
+    supabaseKey: string
+  ) => {
+    try {
+      let query = `${supabaseUrl}/rest/v1/projects?id=neq.${currentProjectId}&status=eq.published&limit=3&order=created_at.desc`;
+      
+      // Build query based on available filters
+      if (category && projectType) {
+        query += `&or=(category.eq.${encodeURIComponent(category)},project_type.eq.${encodeURIComponent(projectType)})`;
+      } else if (category) {
+        query += `&category=eq.${encodeURIComponent(category)}`;
+      } else if (projectType) {
+        query += `&project_type=eq.${encodeURIComponent(projectType)}`;
       }
-    );
 
-    if (response.ok) {
-      const data = await response.json();
-      const localized = data.map((p: BlogPost) => {
-        const lp = localizePost(p, displayLanguage);
-        return convertToRelatedPost(lp); // Dùng hàm mới
-      });
-      setRelatedPosts(localized);
+      const response = await fetch(
+        query,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${supabaseKey}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        const localized = data.map((p: ProjectPost) => {
+          const lp = localizeProject(p, displayLanguage);
+          return convertToRelatedProject(lp);
+        });
+        setRelatedProjects(localized);
+      }
+    } catch (error) {
+      console.error("Error fetching related projects:", error);
     }
-  } catch (error) {
-    console.error("Error fetching related posts:", error);
-  }
-};
+  };
 
-  // Localized post data
-  const localizedPost = useMemo((): LocalizedPost | null => {
-    if (!post) return null;
-    return localizePost(post, displayLanguage);
-  }, [post, displayLanguage]);
+  // Localized project data
+  const localizedProject = useMemo((): LocalizedProject | null => {
+    if (!project) return null;
+    return localizeProject(project, displayLanguage);
+  }, [project, displayLanguage]);
 
-  // Article post for components
-  const articlePost = useMemo((): ArticlePost | null => {
-    if (!localizedPost) return null;
-    return convertToArticlePost(localizedPost);
-  }, [localizedPost]);
+  // Article project for components
+  const articleProject = useMemo((): ArticleProject | null => {
+    if (!localizedProject) return null;
+    return convertToArticleProject(localizedProject);
+  }, [localizedProject]);
 
   // Extract headings from content
   const headings = useMemo((): Heading[] => {
-    if (!localizedPost?.content || typeof window === 'undefined') return [];
+    if (!localizedProject?.content || typeof window === 'undefined') return [];
 
     const parser = new DOMParser();
-    const doc = parser.parseFromString(localizedPost.content, "text/html");
+    const doc = parser.parseFromString(localizedProject.content, "text/html");
     const headingElements = doc.querySelectorAll("h1, h2");
 
     return Array.from(headingElements).map((element, index) => {
@@ -349,14 +408,14 @@ export default function BlogDetail() {
       const id = `heading-${index}-${text.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`;
       return { id, text, level, tagName };
     });
-  }, [localizedPost?.content]);
+  }, [localizedProject?.content]);
 
   // Calculate read time
   const readTime = useMemo(() => {
-    if (!localizedPost?.content) return 5;
-    const wordCount = localizedPost.content.split(/\s+/).length;
+    if (!localizedProject?.content) return 5;
+    const wordCount = localizedProject.content.split(/\s+/).length;
     return Math.ceil(wordCount / 200);
-  }, [localizedPost?.content]);
+  }, [localizedProject?.content]);
 
   // Intersection Observer for active headings
   useEffect(() => {
@@ -393,9 +452,9 @@ export default function BlogDetail() {
 
   // Render content with heading IDs
   const renderedContent = useMemo(() => {
-    if (!localizedPost?.content) return "";
+    if (!localizedProject?.content) return "";
 
-    let content = localizedPost.content;
+    let content = localizedProject.content;
     let headingIndex = 0;
 
     // Add IDs to headings
@@ -418,7 +477,36 @@ export default function BlogDetail() {
     });
 
     return doc.body.innerHTML;
-  }, [localizedPost?.content, headings]);
+  }, [localizedProject?.content, headings]);
+
+  // Format area
+  const formatArea = (area?: number) => {
+    if (!area) return '';
+    if (displayLanguage === 'vi') {
+      return area >= 10000 
+        ? `${(area / 10000).toFixed(1)} ha` 
+        : `${area.toLocaleString('vi-VN')} m²`;
+    } else {
+      return area >= 10000 
+        ? `${(area / 10000).toFixed(1)} ha` 
+        : `${area.toLocaleString('en-US')} m²`;
+    }
+  };
+
+  // Format date
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString(displayLanguage === 'vi' ? 'vi-VN' : 'en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+    } catch {
+      return dateString;
+    }
+  };
 
   if (loading) {
     return (
@@ -426,21 +514,21 @@ export default function BlogDetail() {
         <div className="text-center">
           <Loader2 className="animate-spin mx-auto mb-4 w-8 h-8 text-primary" />
           <p className="text-muted-foreground">
-            {displayLanguage === 'vi' ? 'Đang tải bài viết...' : 'Loading article...'}
-        </p>
+            {displayLanguage === 'vi' ? 'Đang tải dự án...' : 'Loading project...'}
+          </p>
         </div>
       </div>
     );
   }
 
-  if (!post || !localizedPost || !articlePost) {
+  if (!project || !localizedProject || !articleProject) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4">
         <div className="max-w-md w-full text-center">
           <h1 className="text-2xl font-bold mb-4">
-            {displayLanguage === 'vi' ? 'Không tìm thấy bài viết' : 'Article not found'}
+            {displayLanguage === 'vi' ? 'Không tìm thấy dự án' : 'Project not found'}
           </h1>
-          <Button onClick={() => router.push("/blog")}>
+          <Button onClick={() => router.push("/projects")}>
             {displayLanguage === 'vi' ? 'Quay lại danh sách' : 'Back to list'}
           </Button>
         </div>
@@ -483,8 +571,16 @@ export default function BlogDetail() {
       `}</style>
 
       <HeroSection
-        image={post.image || undefined}
-        title={localizedPost.title}
+        image={project.image || undefined}
+        title={localizedProject.title}
+        subtitle={localizedProject.excerpt}
+        category={localizedProject.category}
+        project_type={localizedProject.project_type}
+        location={localizedProject.location}
+        client={localizedProject.client}
+        completion_date={localizedProject.completion_date}
+        area={localizedProject.area}
+        author={localizedProject.author}
       />
 
       <div className="container mx-auto px-4 py-8 max-w-400">
@@ -540,29 +636,94 @@ export default function BlogDetail() {
           {/* Main Content */}
           <div className="max-w-6xl w-full">
             {/* Back button when no hero image */}
-            {!post.image && (
+            {!project.image && (
               <div className="mb-8">
-                <Button variant="ghost" onClick={() => router.push("/blog")} className="mb-6">
+                <Button variant="ghost" onClick={() => router.push("/projects")} className="mb-6">
                   <ArrowLeft className="w-4 h-4 mr-2" />
-                  {displayLanguage === 'vi' ? 'Quay lại' : 'Go back'}
+                  {displayLanguage === 'vi' ? 'Quay lại dự án' : 'Back to projects'}
                 </Button>
               </div>
             )}
 
             <article className="bg-white text-card-foreground rounded-2xl shadow-lg p-6 md:p-10 -mt-20 relative z-10 border border-border">
+              {/* Project Summary Card - Tương tự như blog nhưng thêm thông tin dự án */}
+              <div className="mb-8 p-6 bg-gradient-to-r from-primary/5 to-gray-50 rounded-xl border border-primary/20">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Project Type */}
+                  {localizedProject.project_type && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <Users className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">
+                          {displayLanguage === 'vi' ? 'Loại dự án' : 'Project Type'}
+                        </div>
+                        <div className="font-semibold text-foreground">{localizedProject.project_type}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Location */}
+                  {localizedProject.location && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                        <MapPin className="w-5 h-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">
+                          {displayLanguage === 'vi' ? 'Địa điểm' : 'Location'}
+                        </div>
+                        <div className="font-semibold text-foreground">{localizedProject.location}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Area */}
+                  {localizedProject.area && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
+                        <Ruler className="w-5 h-5 text-green-500" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">
+                          {displayLanguage === 'vi' ? 'Diện tích' : 'Area'}
+                        </div>
+                        <div className="font-semibold text-foreground">{formatArea(localizedProject.area)}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Completion Date */}
+                  {localizedProject.completion_date && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center">
+                        <Calendar className="w-5 h-5 text-purple-500" />
+                      </div>
+                      <div>
+                        <div className="text-sm text-muted-foreground">
+                          {displayLanguage === 'vi' ? 'Hoàn thành' : 'Completed'}
+                        </div>
+                        <div className="font-semibold text-foreground">{formatDate(localizedProject.completion_date)}</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
               <ArticleMetadata
-                post={articlePost}
+                post={articleProject}
                 readTime={readTime}
-                viewCount={articlePost.views || 0}
+                viewCount={articleProject.views || 0}
               />
               
               <ArticleTitleAndExcerpt
-                title={localizedPost.title}
-                excerpt={localizedPost.excerpt}
+                title={localizedProject.title}
+                excerpt={localizedProject.excerpt}
               />
               
               <ArticleActions
-                post={articlePost}
+                post={articleProject}
               />
               
               <Separator className="mb-8" />
@@ -571,10 +732,11 @@ export default function BlogDetail() {
                 <div dangerouslySetInnerHTML={{ __html: renderedContent }} />
               </ArticleContent>
               
-              {post.tags && post.tags.length > 0 && (
+              {/* Project Tags */}
+              {project.tags && project.tags.length > 0 && (
                 <div className="mt-8">
                   <div className="flex flex-wrap gap-2">
-                    {post.tags.map((tag) => (
+                    {project.tags.map((tag) => (
                       <span
                         key={tag}
                         className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-muted text-muted-foreground"
@@ -587,16 +749,18 @@ export default function BlogDetail() {
               )}
               
               <AuthorBio
-                post={articlePost}
+                post={articleProject}
               />
             </article>
 
-            {relatedPosts.length > 0 && (
-                <RelatedPosts
-                    relatedPosts={relatedPosts} // Bây giờ đúng type
-                    currentPostId={post.id}
-                />
-                )}
+            {/* Related Projects - Sử dụng component từ projects */}
+            {relatedProjects.length > 0 && (
+              <RelatedProjects
+                relatedProjects={relatedProjects}
+                currentProjectId={project.id}
+                displayLanguage={displayLanguage}
+              />
+            )}
           </div>
 
           {/* Table of Contents - Desktop */}

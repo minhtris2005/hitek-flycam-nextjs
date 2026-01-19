@@ -28,9 +28,6 @@ const generateSlug = (text: string): string => {
 const getFallbackImage = (index: number): string => {
   const images = [
     'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
   ];
   return images[index % images.length];
 };
@@ -84,49 +81,9 @@ export default function AllBlogsPage() {
       const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
       
       if (!supabaseUrl || !supabaseKey) {
-        console.error('Missing Supabase env variables');
-        
-        // Create mock data inline
-        const mockImages = [
-          'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1522031150111-0fdb8ce8d2e7?w=800&auto=format&fit=crop',
-        ];
-
-        const mockData = Array.from({ length: 12 }).map((_, i) => ({
-          id: `${i + 100}`,
-          title: `Bài viết mẫu ${i + 1}`,
-          title_vi: `Bài viết mẫu ${i + 1}`,
-          title_en: `Sample Post ${i + 1}`,
-          displayTitle: displayLanguage === 'vi' ? `Bài viết mẫu ${i + 1}` : `Sample Post ${i + 1}`,
-          displayExcerpt: displayLanguage === 'vi' ? `Mô tả bài viết mẫu ${i + 1} về drone và công nghệ bay` : `Description for sample post ${i + 1} about drone technology`,
-          displaySlug: `bai-viet-mau-${i + 1}`,
-          displayCategory: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
-          excerpt: `Mô tả bài viết ${i + 1}`,
-          excerpt_vi: `Mô tả bài viết ${i + 1}`,
-          excerpt_en: `Description post ${i + 1}`,
-          content: `Nội dung chi tiết của bài viết ${i + 1}...`,
-          content_vi: `Nội dung chi tiết của bài viết ${i + 1}...`,
-          content_en: `Detailed content of post ${i + 1}...`,
-          image: mockImages[i % mockImages.length],
-          category: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
-          author: 'Hitek Team',
-          status: 'published',
-          created_at: new Date(Date.now() - i * 86400000).toISOString(),
-          slug: `bai-viet-mau-${i + 1}`,
-          slug_vi: `bai-viet-mau-${i + 1}`,
-          slug_en: `sample-post-${i + 1}`,
-          readTime: Math.ceil(Math.random() * 10) + 1,
-        }));
-        
-        setAllBlogs(mockData);
+        setAllBlogs([]);
         return;
       }
-
-      console.log('Fetching from Supabase...');
       
       const response = await fetch(
         `${supabaseUrl}/rest/v1/blog_posts?status=eq.published&order=created_at.desc`,
@@ -141,8 +98,6 @@ export default function AllBlogsPage() {
 
       if (response.ok) {
         const data: BlogPost[] = await response.json();
-        
-        console.log('Data received from Supabase:', data.length, 'posts');
         
         if (data && data.length > 0) {
           const enhancedPosts: EnhancedBlogPost[] = data.map((post) => {
@@ -176,126 +131,14 @@ export default function AllBlogsPage() {
           });
           
           setAllBlogs(enhancedPosts);
-          console.log('Enhanced posts:', enhancedPosts.length);
         } else {
-          console.log('No data from Supabase, using mock data');
-          // Create mock data inline
-          const mockImages = [
-            'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&auto=format&fit=crop',
-            'https://images.unsplash.com/photo-1522031150111-0fdb8ce8d2e7?w=800&auto=format&fit=crop',
-          ];
-
-          const mockData = Array.from({ length: 12 }).map((_, i) => ({
-            id: `${i + 100}`,
-            title: `Bài viết mẫu ${i + 1}`,
-            title_vi: `Bài viết mẫu ${i + 1}`,
-            title_en: `Sample Post ${i + 1}`,
-            displayTitle: displayLanguage === 'vi' ? `Bài viết mẫu ${i + 1}` : `Sample Post ${i + 1}`,
-            displayExcerpt: displayLanguage === 'vi' ? `Mô tả bài viết mẫu ${i + 1} về drone và công nghệ bay` : `Description for sample post ${i + 1} about drone technology`,
-            displaySlug: `bai-viet-mau-${i + 1}`,
-            displayCategory: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
-            excerpt: `Mô tả bài viết ${i + 1}`,
-            excerpt_vi: `Mô tả bài viết ${i + 1}`,
-            excerpt_en: `Description post ${i + 1}`,
-            content: `Nội dung chi tiết của bài viết ${i + 1}...`,
-            content_vi: `Nội dung chi tiết của bài viết ${i + 1}...`,
-            content_en: `Detailed content of post ${i + 1}...`,
-            image: mockImages[i % mockImages.length],
-            category: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
-            author: 'Hitek Team',
-            status: 'published',
-            created_at: new Date(Date.now() - i * 86400000).toISOString(),
-            slug: `bai-viet-mau-${i + 1}`,
-            slug_vi: `bai-viet-mau-${i + 1}`,
-            slug_en: `sample-post-${i + 1}`,
-            readTime: Math.ceil(Math.random() * 10) + 1,
-          }));
-          
-          setAllBlogs(mockData);
+          setAllBlogs([]);
         }
       } else {
-        console.warn('Failed to fetch from Supabase, using mock data');
-        // Create mock data inline
-        const mockImages = [
-          'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1522031150111-0fdb8ce8d2e7?w=800&auto=format&fit=crop',
-        ];
-
-        const mockData = Array.from({ length: 12 }).map((_, i) => ({
-          id: `${i + 100}`,
-          title: `Bài viết mẫu ${i + 1}`,
-          title_vi: `Bài viết mẫu ${i + 1}`,
-          title_en: `Sample Post ${i + 1}`,
-          displayTitle: displayLanguage === 'vi' ? `Bài viết mẫu ${i + 1}` : `Sample Post ${i + 1}`,
-          displayExcerpt: displayLanguage === 'vi' ? `Mô tả bài viết mẫu ${i + 1} về drone và công nghệ bay` : `Description for sample post ${i + 1} about drone technology`,
-          displaySlug: `bai-viet-mau-${i + 1}`,
-          displayCategory: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
-          excerpt: `Mô tả bài viết ${i + 1}`,
-          excerpt_vi: `Mô tả bài viết ${i + 1}`,
-          excerpt_en: `Description post ${i + 1}`,
-          content: `Nội dung chi tiết của bài viết ${i + 1}...`,
-          content_vi: `Nội dung chi tiết của bài viết ${i + 1}...`,
-          content_en: `Detailed content of post ${i + 1}...`,
-          image: mockImages[i % mockImages.length],
-          category: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
-          author: 'Hitek Team',
-          status: 'published',
-          created_at: new Date(Date.now() - i * 86400000).toISOString(),
-          slug: `bai-viet-mau-${i + 1}`,
-          slug_vi: `bai-viet-mau-${i + 1}`,
-          slug_en: `sample-post-${i + 1}`,
-          readTime: Math.ceil(Math.random() * 10) + 1,
-        }));
-        
-        setAllBlogs(mockData);
+        setAllBlogs([]);
       }
     } catch {
-      console.error('Error fetching blogs');
-      // Create mock data inline
-      const mockImages = [
-        'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?w=800&auto=format&fit=crop',
-        'https://images.unsplash.com/photo-1522031150111-0fdb8ce8d2e7?w=800&auto=format&fit=crop',
-      ];
-
-      const mockData = Array.from({ length: 12 }).map((_, i) => ({
-        id: `${i + 100}`,
-        title: `Bài viết mẫu ${i + 1}`,
-        title_vi: `Bài viết mẫu ${i + 1}`,
-        title_en: `Sample Post ${i + 1}`,
-        displayTitle: displayLanguage === 'vi' ? `Bài viết mẫu ${i + 1}` : `Sample Post ${i + 1}`,
-        displayExcerpt: displayLanguage === 'vi' ? `Mô tả bài viết mẫu ${i + 1} về drone và công nghệ bay` : `Description for sample post ${i + 1} about drone technology`,
-        displaySlug: `bai-viet-mau-${i + 1}`,
-        displayCategory: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
-        excerpt: `Mô tả bài viết ${i + 1}`,
-        excerpt_vi: `Mô tả bài viết ${i + 1}`,
-        excerpt_en: `Description post ${i + 1}`,
-        content: `Nội dung chi tiết của bài viết ${i + 1}...`,
-        content_vi: `Nội dung chi tiết của bài viết ${i + 1}...`,
-        content_en: `Detailed content of post ${i + 1}...`,
-        image: mockImages[i % mockImages.length],
-        category: i % 3 === 0 ? 'Tin tức' : i % 3 === 1 ? 'Hướng dẫn' : 'Công nghệ',
-        author: 'Hitek Team',
-        status: 'published',
-        created_at: new Date(Date.now() - i * 86400000).toISOString(),
-        slug: `bai-viet-mau-${i + 1}`,
-        slug_vi: `bai-viet-mau-${i + 1}`,
-        slug_en: `sample-post-${i + 1}`,
-        readTime: Math.ceil(Math.random() * 10) + 1,
-      }));
-      
-      setAllBlogs(mockData);
+      setAllBlogs([]);
     } finally {
       setLoading(false);
     }
@@ -370,9 +213,6 @@ export default function AllBlogsPage() {
     );
   }
 
-  console.log('All blogs count:', allBlogs.length);
-  console.log('Current blogs:', currentBlogs.length);
-
   return (
     <div className="min-h-screen py-12 bg-linear-to-b from-gray-50 to-white">
       <div className="container mx-auto px-4">
@@ -382,7 +222,6 @@ export default function AllBlogsPage() {
             {displayLanguage === 'vi' ? 'Tất cả bài viết' : 'All Blog Posts'}
           </h1>
           <div className="w-24 h-1 bg-red-600 rounded-full"></div>
-          
         </div>
 
         {/* Empty state */}
@@ -485,39 +324,39 @@ export default function AllBlogsPage() {
             </div>
 
             {/* Pagination đơn giản - LUÔN HIỆN KHI CÓ BÀI VIẾT */}
-{allBlogs.length > 0 && (
-  <div className="flex justify-center items-center gap-4 mt-16 pt-8 border-t border-gray-200">
-    <Button
-      onClick={() => handlePageChange(currentPage - 1)}
-      disabled={currentPage === 1}
-      variant="outline"
-      size="lg"
-      className="border-gray-300 hover:border-gray-400 disabled:opacity-40"
-    >
-      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-      </svg>
-      {displayLanguage === 'vi' ? 'Trước' : 'Prev'}
-    </Button>
+            {allBlogs.length > 0 && (
+              <div className="flex justify-center items-center gap-4 mt-16 pt-8 border-t border-gray-200">
+                <Button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  size="lg"
+                  className="border-gray-300 hover:border-gray-400 disabled:opacity-40"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                  {displayLanguage === 'vi' ? 'Trước' : 'Prev'}
+                </Button>
 
-    <div className="text-sm text-gray-600 font-medium">
-      {displayLanguage === 'vi' ? 'Trang' : 'Page'} {currentPage} / {totalPages}
-    </div>
+                <div className="text-sm text-gray-600 font-medium">
+                  {displayLanguage === 'vi' ? 'Trang' : 'Page'} {currentPage} / {totalPages}
+                </div>
 
-    <Button
-      onClick={() => handlePageChange(currentPage + 1)}
-      disabled={currentPage === totalPages}
-      variant="outline"
-      size="lg"
-      className="border-gray-300 hover:border-gray-400 disabled:opacity-40"
-    >
-      {displayLanguage === 'vi' ? 'Sau' : 'Next'}
-      <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-      </svg>
-    </Button>
-  </div>
-)}
+                <Button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  variant="outline"
+                  size="lg"
+                  className="border-gray-300 hover:border-gray-400 disabled:opacity-40"
+                >
+                  {displayLanguage === 'vi' ? 'Sau' : 'Next'}
+                  <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Button>
+              </div>
+            )}
           </>
         )}
       </div>
