@@ -9,6 +9,78 @@ import TrustedClientsSection from "@/app/components/home/TrustedClientsSection";
 import DetailedServicesSection from "@/app/components/home/DetailedServicesSection";
 import IntroSection from "@/app/components/home/IntroSection";
 
+// Fetch news data từ Supabase
+async function getLatestNews() {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return null;
+    }
+
+    // Lấy 3 bài viết mới nhất
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/news?status=eq.published&order=created_at.desc&limit=3`,
+      {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        next: { revalidate: 300 } // ISR: Revalidate every 5 minutes
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      return data || [];
+    }
+    
+    return [];
+  } catch (error) {
+    console.error("Error fetching latest news:", error);
+    return [];
+  }
+}
+
+// Fetch projects data từ Supabase
+async function getFeaturedProjects() {
+  try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return null;
+    }
+
+    // Lấy 6 projects mới nhất
+    const response = await fetch(
+      `${supabaseUrl}/rest/v1/projects?status=eq.published&order=created_at.desc&limit=6`,
+      {
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        next: { revalidate: 300 } // ISR: Revalidate every 5 minutes
+      }
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      return data || [];
+    }
+    
+    return [];
+  } catch (error) {
+    console.error("Error fetching featured projects:", error);
+    return [];
+  }
+}
+
 export const metadata: Metadata = {
   title: "Hitek Flycam - Dịch vụ Flycam Chuyên nghiệp Hàng đầu Việt Nam",
   description: "Cung cấp giải pháp toàn diện về drone: Sửa chữa, khảo sát, quay phim, vận chuyển, đào tạo và dịch vụ giấy phép bay.",
@@ -63,13 +135,22 @@ export const metadata: Metadata = {
   },
   category: "technology",
 };
+
 export const viewport = {
   themeColor: "#d62323",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
 };
-export default function HomePage() {
+
+export default async function HomePage() {
+  // Fetch dữ liệu song song để tối ưu performance
+  const [latestNews, featuredProjects] = await Promise.all([
+    getLatestNews(),
+    getFeaturedProjects()
+  ]);
+
+  // Cấu trúc schema data với dữ liệu thực
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
@@ -130,7 +211,84 @@ export default function HomePage() {
           }
         }
       ]
-    }
+    },
+    // Thêm recent news và projects vào structured data
+    "hasPart": [
+      {
+        "@type": "CollectionPage",
+        "name": "Tin tức mới nhất",
+        "description": "Tin tức và cập nhật mới nhất về công nghệ drone",
+        "numberOfItems": latestNews?.length || 0,
+        "mainEntity": latestNews?.slice(0, 3).map((news: any, index: number) => ({
+          "@type": "NewsArticle",
+          "headline": news.title_vi || "Tin tức về drone",
+          "description": news.excerpt_vi || "",
+          "url": `https://hitekflycam.com/news/${news.slug_vi}`,
+          "datePublished": news.created_at,
+          "image": news.image
+        })) || []
+      },
+      {
+        "@type": "CollectionPage",
+        "name": "Dự án nổi bật",
+        "description": "Các dự án flycam tiêu biểu đã thực hiện",
+        "numberOfItems": featuredProjects?.length || 0,
+        "mainEntity": featuredProjects?.slice(0, 6).map((project: any, index: number) => ({
+          "@type": "CreativeWork",
+          "name": project.title_vi || "Dự án drone",
+          "description": project.excerpt_vi || "",
+          "url": `https://hitekflycam.com/projects/${project.slug_vi}`,
+          "dateCreated": project.created_at,
+          "image": project.image
+        })) || []
+      }
+    ]
+  };
+
+  // Tạo structured data cho carousel news
+  const newsStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": latestNews?.slice(0, 6).map((news: any, index: number) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "NewsArticle",
+        "headline": news.title_vi,
+        "description": news.excerpt_vi,
+        "url": `https://hitekflycam.com/news/${news.slug_vi}`,
+        "datePublished": news.created_at,
+        "author": {
+          "@type": "Person",
+          "name": news.author || "Hitek Flycam"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Hitek Flycam"
+        }
+      }
+    })) || []
+  };
+
+  // Tạo structured data cho featured projects
+  const projectsStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": featuredProjects?.slice(0, 3).map((project: any, index: number) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "CreativeWork",
+        "name": project.title_vi,
+        "description": project.excerpt_vi,
+        "url": `https://hitekflycam.com/projects/${project.slug_vi}`,
+        "dateCreated": project.created_at,
+        "creator": {
+          "@type": "Organization",
+          "name": "Hitek Flycam"
+        }
+      }
+    })) || []
   };
 
   return (
@@ -172,9 +330,9 @@ export default function HomePage() {
         <DetailedServicesSection />
       </section>
 
-      {/* Featured Projects Section - GREYWHITE */}
+      {/* Featured Projects Section - GREYWHITE với dữ liệu từ Supabase */}
       <section aria-label="Dự án tiêu biểu">
-        <FeaturedProjectsSection />
+        <FeaturedProjectsSection initialProjects={featuredProjects} />
       </section>
 
       {/* Trusted Clients Section - Đối tác - GREYWHITE */}
@@ -182,9 +340,9 @@ export default function HomePage() {
         <TrustedClientsSection />
       </section>
 
-      {/* News Section - Tin tức và bài viết - WHITE */}
+      {/* News Section - Tin tức và bài viết - WHITE với dữ liệu từ Supabase */}
       <section aria-label="Tin tức và cập nhật">
-        <NewsSection />
+        <NewsSection initialNews={latestNews} />
       </section>
 
       {/* Structured Data cho SEO */}
@@ -192,6 +350,22 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(structuredData)
+        }}
+      />
+      
+      {/* Structured Data cho news carousel */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(newsStructuredData)
+        }}
+      />
+      
+      {/* Structured Data cho featured projects */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(projectsStructuredData)
         }}
       />
     </main>

@@ -1,33 +1,215 @@
 // app/components/home/FeaturedProjectsSection.tsx
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MapPin, Ruler, Calendar, Building, Eye } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import { motion, useInView, type Variants } from "framer-motion";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/app/contexts/LanguageContext";
-
-// Import images
-import photo1 from "@/public/assets/home/project/photo-1.webp";
-import photo2 from "@/public/assets/home/project/photo-2.webp";
-import photo3 from "@/public/assets/home/project/photo-3.webp";
-import photo4 from "@/public/assets/home/project/photo-4.webp";
+import { Badge } from "@/app/components/ui/badge";
+import { Skeleton } from "@/app/components/ui/skeleton";
 
 interface Project {
-  title: string;
-  category: string;
-  description: string;
+  id: string;
+  title_vi: string;
+  title_en?: string | null;
+  excerpt_vi?: string | null;
+  excerpt_en?: string | null;
+  slug_vi: string;
+  slug_en?: string | null;
+  image?: string | null;
+  category?: string | null;
+  project_type?: string | null;
+  location?: string | null;
+  area?: number | null;
+  client?: string | null;
+  completion_date?: string | null;
+  status: string;
+  created_at: string;
+  views?: number | null;
 }
 
-// Static images - reuse images for 6 projects
-const projectImages = [photo1, photo2, photo3, photo4, photo1, photo2];
+interface EnhancedProject {
+  id: string;
+  displayTitle: string;
+  displayExcerpt: string;
+  displaySlug: string;
+  displayCategory: string;
+  displayProjectType: string;
+  displayLocation: string;
+  formattedArea: string;
+  formattedDate: string;
+  image?: string | null;
+  views?: number | null;
+  client?: string | null;
+  is_featured?: boolean;
+}
 
-export default function FeaturedProjectsSection() {
-  const { t } = useLanguage();
+// Helper function để lấy fallback image
+const getFallbackImage = (index: number): string => {
+  const images = [
+    'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&auto=format&fit=crop',
+  ];
+  return images[index % images.length];
+};
+
+interface FeaturedProjectsSectionProps {
+  initialProjects?: Project[];
+}
+
+export default function FeaturedProjectsSection({ initialProjects }: FeaturedProjectsSectionProps) {
+  const { t, language } = useLanguage();
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, amount: 0.2 });
+  const [projects, setProjects] = useState<EnhancedProject[]>([]);
+  const [loading, setLoading] = useState(initialProjects ? false : true);
+
+  const displayLanguage = language === 'vi' ? 'vi' : 'en';
+
+  // Helper function để format area
+  const formatArea = (area?: number) => {
+    if (!area) return '';
+    if (displayLanguage === 'vi') {
+      return area >= 10000 
+        ? `${(area / 10000).toFixed(1)} ha` 
+        : `${area.toLocaleString('vi-VN')} m²`;
+    } else {
+      return area >= 10000 
+        ? `${(area / 10000).toFixed(1)} ha` 
+        : `${area.toLocaleString('en-US')} m²`;
+    }
+  };
+
+  // Helper function để format date
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString(displayLanguage === 'vi' ? 'vi-VN' : 'en-US', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Translate project type
+  const translateProjectType = (type?: string) => {
+    if (!type) return displayLanguage === 'vi' ? 'Dự án' : 'Project';
+    
+    const translations: Record<string, { vi: string, en: string }> = {
+      'Quay chụp': { vi: 'Quay chụp', en: 'Filming' },
+      'Khảo sát': { vi: 'Khảo sát', en: 'Survey' },
+      'Xây dựng': { vi: 'Xây dựng', en: 'Construction' },
+      'Nông nghiệp': { vi: 'Nông nghiệp', en: 'Agriculture' },
+      'Bất động sản': { vi: 'Bất động sản', en: 'Real Estate' },
+      'Sự kiện': { vi: 'Sự kiện', en: 'Events' },
+      'Công nghiệp': { vi: 'Công nghiệp', en: 'Industrial' },
+      'Môi trường': { vi: 'Môi trường', en: 'Environmental' },
+    };
+    
+    return translations[type] 
+      ? (displayLanguage === 'vi' ? translations[type].vi : translations[type].en)
+      : type;
+  };
+
+  // Process và chuyển đổi dữ liệu
+  useEffect(() => {
+    const processProjects = (projectsData: Project[]) => {
+      if (projectsData && projectsData.length > 0) {
+        const enhancedProjects: EnhancedProject[] = projectsData.map((project, index) => {
+          // Lấy dữ liệu theo ngôn ngữ
+          const title = displayLanguage === 'vi' 
+            ? project.title_vi
+            : (project.title_en || project.title_vi || 'Untitled project');
+          
+          const excerpt = displayLanguage === 'vi'
+            ? (project.excerpt_vi || '')
+            : (project.excerpt_en || project.excerpt_vi || '');
+          
+          const slug = displayLanguage === 'vi'
+            ? project.slug_vi
+            : (project.slug_en || project.slug_vi);
+          
+          const category = project.category || (displayLanguage === 'vi' ? 'Dự án' : 'Project');
+
+          return {
+            id: project.id,
+            displayTitle: title,
+            displayExcerpt: excerpt,
+            displaySlug: slug,
+            displayCategory: category,
+            displayProjectType: translateProjectType(project.project_type),
+            displayLocation: project.location || '',
+            formattedArea: formatArea(project.area),
+            formattedDate: formatDate(project.completion_date || project.created_at),
+            image: project.image,
+            views: project.views || 0,
+            client: project.client || '',
+          };
+        });
+        
+        setProjects(enhancedProjects);
+      } else {
+        setProjects([]);
+      }
+      setLoading(false);
+    };
+
+    if (initialProjects) {
+      processProjects(initialProjects);
+    } else {
+      // Fetch dữ liệu nếu không có initial data
+      const fetchFeaturedProjects = async () => {
+        try {
+          setLoading(true);
+          
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+          const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+          
+          if (!supabaseUrl || !supabaseKey) {
+            console.warn("Supabase environment variables are not configured");
+            setProjects([]);
+            return;
+          }
+          
+          // Lấy 6 projects mới nhất
+          const response = await fetch(
+            `${supabaseUrl}/rest/v1/projects?status=eq.published&order=created_at.desc&limit=6`,
+            {
+              headers: {
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+
+          if (response.ok) {
+            const data: Project[] = await response.json();
+            processProjects(data);
+          } else {
+            console.error("Failed to fetch projects from Supabase");
+            setProjects([]);
+          }
+        } catch (error) {
+          console.error("Error fetching projects:", error);
+          setProjects([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchFeaturedProjects();
+    }
+  }, [displayLanguage, initialProjects]);
 
   // Helper function to safely get string
   const getString = (value: unknown): string => {
@@ -38,21 +220,6 @@ export default function FeaturedProjectsSection() {
     return String(value);
   };
 
-  // Helper function to safely get array
-  const getArray = <T,>(value: unknown): T[] => {
-    if (Array.isArray(value)) return value as T[];
-    return [];
-  };
-
-  // Helper function to get language
-  const getDisplayLanguage = (): string => {
-    const langValue = t("lang");
-    return getString(langValue) === 'vi' ? 'vi' : 'en';
-  };
-
-  // Get projects data from translation
-  const projectsData: Project[] = getArray(t("home.featuredProjects.projects"));
-  
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -118,8 +285,54 @@ export default function FeaturedProjectsSection() {
     }
   };
 
-  const displayLanguage = getDisplayLanguage();
-  const contactUrl = "/contact"; // Đồng bộ với Header
+  const contactUrl = "/contact";
+
+  // Loading skeleton
+  if (loading) {
+    return (
+      <section className="py-16 bg-greywhite">
+        <div className="container mx-auto px-4">
+          {/* Header skeleton */}
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-6">
+            <div className="flex-1">
+              <Skeleton className="h-12 w-3/4 mb-4" />
+              <Skeleton className="h-6 w-1/2" />
+            </div>
+            <Skeleton className="h-12 w-32" />
+          </div>
+          
+          {/* Projects grid skeleton */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className="bg-white rounded-2xl overflow-hidden h-full border border-gray-300">
+                <Skeleton className="h-56 w-full" />
+                <div className="p-6">
+                  <Skeleton className="h-4 w-20 mb-4" />
+                  <Skeleton className="h-7 w-full mb-3" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-2/3 mb-6" />
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          {/* CTA skeleton */}
+          <div className="mt-16 text-center">
+            <Skeleton className="h-6 w-64 mx-auto mb-6" />
+            <Skeleton className="h-14 w-48 mx-auto" />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section 
@@ -158,22 +371,24 @@ export default function FeaturedProjectsSection() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2 border-2 border-primary text-primary transition-all duration-300"
-            >
-              {getString(t("home.featuredProjects.viewAllProjects"))}
-              <motion.div
-                animate={{ x: [0, 5, 0] }}
-                transition={{ 
-                  repeat: Infinity, 
-                  duration: 1.5,
-                  repeatDelay: 1 
-                }}
+            <Link href="/projects">
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 border-2 border-primary text-primary transition-all duration-300"
               >
-                <ArrowRight className="w-4 h-4" />
-              </motion.div>
-            </Button>
+                {getString(t("home.featuredProjects.viewAllProjects"))}
+                <motion.div
+                  animate={{ x: [0, 5, 0] }}
+                  transition={{ 
+                    repeat: Infinity, 
+                    duration: 1.5,
+                    repeatDelay: 1 
+                  }}
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </motion.div>
+              </Button>
+            </Link>
           </motion.div>
         </motion.div>
 
@@ -184,9 +399,9 @@ export default function FeaturedProjectsSection() {
           animate={isInView ? "visible" : "hidden"}
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
         >
-          {projectsData.map((project: Project, index: number) => (
+          {projects.map((project, index) => (
             <motion.div
-              key={index}
+              key={project.id}
               variants={itemVariants}
               whileHover={{ 
                 y: -10,
@@ -201,17 +416,17 @@ export default function FeaturedProjectsSection() {
                   className="relative overflow-hidden h-56"
                 >
                   <Image
-                    src={projectImages[index]}
-                    alt={project.title}
+                    src={project.image || getFallbackImage(index)}
+                    alt={project.displayTitle}
                     fill
                     className="object-cover"
                     sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                   
-                  {/* linear Overlay */}
+                  {/* Gradient Overlay */}
                   <div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   
-                  {/* Category Badge */}
+                  {/* Project Type Badge */}
                   <motion.div 
                     className="absolute top-4 left-4"
                     initial={{ x: -20, opacity: 0 }}
@@ -219,51 +434,110 @@ export default function FeaturedProjectsSection() {
                     transition={{ delay: 0.2, duration: 0.5 }}
                   >
                     <span className="bg-linear-to-r from-primary to-red-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-lg">
-                      {project.category}
+                      {project.displayProjectType}
                     </span>
                   </motion.div>
+                  
+                  {/* Views Counter */}
+                  {project.views !== undefined && project.views > 0 && (
+                    <div className="absolute top-4 right-4 flex items-center gap-1 bg-black/50 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+                      <Eye className="w-3 h-3" />
+                      <span>{project.views}</span>
+                    </div>
+                  )}
                   
                   {/* View Button on Hover */}
                   <motion.div
                     className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   >
-                    <Button className="bg-white text-primary hover:bg-white/90 font-semibold px-6 py-3 rounded-full shadow-lg">
-                      {displayLanguage === 'vi' ? 'Xem chi tiết' : 'View Details'}
-                    </Button>
+                    <Link href={`/projects/${project.displaySlug}`}>
+                      <Button className="bg-white text-primary hover:bg-white/90 font-semibold px-6 py-3 rounded-full shadow-lg">
+                        {displayLanguage === 'vi' ? 'Xem chi tiết' : 'View Details'}
+                      </Button>
+                    </Link>
                   </motion.div>
                 </motion.div>
                 
                 {/* Content */}
                 <div className="p-6">
+                  {/* Category tag */}
+                  <div className="mb-3">
+                    <Badge 
+                      variant="secondary" 
+                      className="bg-gray-100 text-gray-700 border-gray-300"
+                    >
+                      {project.displayCategory}
+                    </Badge>
+                  </div>
+                  
                   <h3 className="text-lg font-bold text-foreground mb-3 line-clamp-2 min-h-14 group-hover:text-primary transition-colors duration-300">
-                    {project.title}
+                    <Link href={`/projects/${project.displaySlug}`} className="hover:underline">
+                      {project.displayTitle}
+                    </Link>
                   </h3>
+                  
                   <p className="text-sm text-muted-foreground mb-4 line-clamp-2 min-h-10">
-                    {project.description}
+                    {project.displayExcerpt}
                   </p>
+                  
+                  {/* Project details */}
+                  <div className="grid grid-cols-2 gap-3 mb-6">
+                    {/* Location */}
+                    {project.displayLocation && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 truncate">{project.displayLocation}</span>
+                      </div>
+                    )}
+                    
+                    {/* Area */}
+                    {project.formattedArea && (
+                      <div className="flex items-center gap-1">
+                        <Ruler className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600">{project.formattedArea}</span>
+                      </div>
+                    )}
+                    
+                    {/* Client */}
+                    {project.client && (
+                      <div className="flex items-center gap-1">
+                        <Building className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                        <span className="text-xs text-gray-600 truncate">{project.client}</span>
+                      </div>
+                    )}
+                    
+                    {/* Date */}
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-600">{project.formattedDate}</span>
+                    </div>
+                  </div>
+                  
                   <motion.div
                     whileHover={{ scale: 1.05, x: 5 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Button
-                      variant="ghost"
-                      className="p-0 h-auto text-primary hover:text-primary/80 hover:bg-transparent group/btn"
-                    >
-                      <span className="flex items-center gap-2">
-                        {displayLanguage === 'vi' ? 'Xem chi tiết' : 'View Details'}
-                        <motion.span
-                          className="inline-block"
-                          animate={{ x: [0, 5, 0] }}
-                          transition={{
-                            repeat: Infinity,
-                            duration: 1.5,
-                            repeatDelay: 0.5
-                          }}
-                        >
-                          →
-                        </motion.span>
-                      </span>
-                    </Button>
+                    <Link href={`/projects/${project.displaySlug}`}>
+                      <Button
+                        variant="ghost"
+                        className="p-0 h-auto text-primary hover:text-primary/80 hover:bg-transparent group/btn"
+                      >
+                        <span className="flex items-center gap-2">
+                          {displayLanguage === 'vi' ? 'Xem chi tiết' : 'View Details'}
+                          <motion.span
+                            className="inline-block"
+                            animate={{ x: [0, 5, 0] }}
+                            transition={{
+                              repeat: Infinity,
+                              duration: 1.5,
+                              repeatDelay: 0.5
+                            }}
+                          >
+                            →
+                          </motion.span>
+                        </span>
+                      </Button>
+                    </Link>
                   </motion.div>
                 </div>
               </div>
@@ -284,6 +558,21 @@ export default function FeaturedProjectsSection() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* Empty state */}
+        {projects.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <div className="text-5xl mb-4">📷</div>
+            <h3 className="text-2xl font-semibold mb-2 text-gray-700">
+              {displayLanguage === 'vi' ? 'Chưa có dự án nào' : 'No projects yet'}
+            </h3>
+            <p className="text-gray-600 text-lg mb-8 max-w-md mx-auto">
+              {displayLanguage === 'vi' 
+                ? 'Hiện chưa có dự án nào được đăng tải. Vui lòng quay lại sau.'
+                : 'No projects have been published yet. Please check back later.'}
+            </p>
+          </div>
+        )}
 
         {/* Bottom CTA */}
         <motion.div
